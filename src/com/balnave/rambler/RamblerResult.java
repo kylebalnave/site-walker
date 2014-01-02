@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  *
  * @author balnave
  */
-public class RamblerResult {
+public final class RamblerResult {
 
     protected List<String> normalisedLinks = new ArrayList<String>();
     protected int responseStatus = -1;

@@ -1,6 +1,5 @@
 package com.balnave.rambler;
 
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -15,8 +14,8 @@ import java.util.concurrent.Callable;
 public class RamblerRunner implements Callable<RamblerResult> {
 
     private final String baseUrl;
-    private final boolean storeSourceStr;
     private RamblerResult result;
+    private final boolean storeSourceStr;
 
     public RamblerRunner(String baseUrl, boolean storeSourceStr) {
         this.baseUrl = baseUrl;
@@ -32,16 +31,24 @@ public class RamblerRunner implements Callable<RamblerResult> {
             connection = (HttpURLConnection) urlToLoad.openConnection();
             result = new RamblerResult(connection, storeSourceStr);
         } catch (MalformedURLException ex) {
-            result = new RamblerResult(baseUrl, -0, ex.getMessage());
+            setErrorResult(connection, ex.getMessage());
         } catch (IOException ex) {
-            result = new RamblerResult(baseUrl, 404, ex.getMessage());
+            setErrorResult(connection, ex.getMessage());
         } catch (Exception ex) {
-            result = new RamblerResult(baseUrl, -0, ex.getMessage());
+            setErrorResult(connection, ex.getMessage());
         }
         if (connection != null) {
             connection.disconnect();
         }
         return result;
+    }
+    
+    private void setErrorResult(HttpURLConnection connection, String msg) {
+        try {
+            result = new RamblerResult(baseUrl, connection.getResponseCode(), msg);
+        } catch(IOException ex) {
+            result = new RamblerResult(baseUrl, 0, msg);
+        }
     }
 
     public RamblerResult getResult() {
