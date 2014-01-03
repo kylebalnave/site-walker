@@ -10,6 +10,32 @@
 <project name="Rambler" default="default" basedir=".">
     <description>Builds, tests, and runs the project Rambler.</description>
     <import file="nbproject/build-impl.xml"/>
+    
+    <target name="go-ramble">
+	    <path id="rambler-classpath">
+			<fileset dir="./dist">
+				<include name="Rambler.jar"/>
+			</fileset>
+		</path>
+		<taskdef name="rambler" classname="com.balnave.rambler.RamblerTask" classpathref="rambler-classpath" />
+        <echo>Lets Ramble!</echo>
+		<rambler    site="http://www.google.com/"
+					verbose="false" 
+					maxThreads="5"
+                    maxLinks="5"
+					sourcePath="C:\svn" />
+		<!--
+        <rambler    site="http://www.google.com/"
+                    includes=".*"
+                    excludes=""
+                    maxThreads="10"
+                    maxTimeout="10"
+                    maxLinks="50"
+                    reportPath=""
+					sourcePath=""
+					verbose="true|false"/>
+					-->
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

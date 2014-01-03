@@ -1,6 +1,7 @@
 package com.balnave.rambler;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -145,7 +146,7 @@ public final class RamblerResult {
     
     public boolean isFailureResult() {
         String statusStr = String.valueOf(getResponseStatus());
-        return statusStr.matches("40\\d{1}|30\\d{1}");
+        return statusStr.matches("40\\d{1}");
     }
-
+    
 }

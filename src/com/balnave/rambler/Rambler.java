@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Creates multiple RamblerRunner Classes to scrape a website
@@ -40,15 +41,23 @@ public class Rambler {
                     results.add(result);
                     queueChildLinks(result);
                 }
-                if(result != null && config.isStrictMemoryManagement()) {
+                if (result != null && config.isStrictMemoryManagement()) {
                     result.clearLinks();
                     result.setReponseSource(null);
                 }
             }
             callables.clear();
             //
-            // sleep before another loop to allow other processes
-            Thread.sleep(250);
+            // check if the timeout has been exceeded
+            long timeSinceStartMs = System.currentTimeMillis() - startTimeMs;
+            if (timeSinceStartMs >= config.getTimeoutMs()) {
+                throw new TimeoutException(String.format("Timeout of %sms caused Rambler to stop!", config.getTimeoutMs()));
+            } else {
+                //
+                // sleep before another loop to allow other processes
+                Thread.sleep(250);
+            }
+
         }
         System.out.println(String.format("Site %s finished!", config.getSiteUrl()));
     }
@@ -74,15 +83,16 @@ public class Rambler {
             }
         }
     }
-    
+
     /**
-     * Checks if the queue contains a url 
+     * Checks if the queue contains a url
+     *
      * @param url
-     * @return 
+     * @return
      */
-    private boolean queueContains(String url){
-        for(String[] item : queuedUrls) {
-            if(item[1].equalsIgnoreCase(url)) {
+    private boolean queueContains(String url) {
+        for (String[] item : queuedUrls) {
+            if (item[1].equalsIgnoreCase(url)) {
                 return true;
             }
         }
@@ -117,7 +127,7 @@ public class Rambler {
         // create multiple threads to load urls
         while (threadIndex < config.getMaxThreadCount() && !queuedUrls.isEmpty()) {
             threadIndex++;
-            String[] queuedUrl = ((List<String[]>)queuedUrls).get(0);
+            String[] queuedUrl = ((List<String[]>) queuedUrls).get(0);
             queuedUrls.remove(queuedUrl);
             callables.add(new RamblerRunner(queuedUrl[0], queuedUrl[1]));
         }
@@ -134,20 +144,16 @@ public class Rambler {
         //
         // check if the timeout has been exceeded
         long timeSinceStartMs = System.currentTimeMillis() - startTimeMs;
-        if (timeSinceStartMs >= config.getTimeoutMs()) {
-            System.out.println("Timeout caused cancel command!");
-            return false;
-        }
-            //
+        //
         // debug status
-        System.out.println(String.format("Queue: %s, Urls: %s, Time: %smins %ssecs", 
-                queuedUrls.size(), 
+        System.out.println(String.format("Queue: %s, Complete: %s, Elapsed Time: %s:%s",
+                queuedUrls.size(),
                 results.size(),
                 TimeUnit.MILLISECONDS.toMinutes(timeSinceStartMs),
                 TimeUnit.MILLISECONDS.toSeconds(timeSinceStartMs) - (60 * TimeUnit.MILLISECONDS.toMinutes(timeSinceStartMs))));
         return queuedUrls.size() > 0 && results.size() < config.getMaxLinkCount();
     }
-    
+
     private String[] createQueueItem(String parentUrl, String childUrl) {
         String[] item;
         item = new String[2];
