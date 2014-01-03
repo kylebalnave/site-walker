@@ -7,19 +7,23 @@ import java.net.URL;
 import java.util.concurrent.Callable;
 
 /**
- * Loads a url and gets info
+ * Loads a url
  *
  * @author balnave
  */
 public class RamblerRunner implements Callable<RamblerResult> {
 
+    private final String parentUrl;
     private final String baseUrl;
     private RamblerResult result;
-    private final boolean storeSourceStr;
+    
+    public RamblerRunner(String baseUrl) {
+        this(baseUrl, baseUrl);
+    }
 
-    public RamblerRunner(String baseUrl, boolean storeSourceStr) {
+    public RamblerRunner(String parentUrl, String baseUrl) {
+        this.parentUrl = parentUrl;
         this.baseUrl = baseUrl;
-        this.storeSourceStr = storeSourceStr;
     }
 
     @Override
@@ -29,7 +33,7 @@ public class RamblerRunner implements Callable<RamblerResult> {
         try {
             urlToLoad = new URL(baseUrl);
             connection = (HttpURLConnection) urlToLoad.openConnection();
-            result = new RamblerResult(connection, storeSourceStr);
+            result = new RamblerResult(parentUrl, connection);
         } catch (MalformedURLException ex) {
             setErrorResult(connection, ex.getMessage());
         } catch (IOException ex) {
@@ -40,14 +44,21 @@ public class RamblerRunner implements Callable<RamblerResult> {
         if (connection != null) {
             connection.disconnect();
         }
+        if (result == null) {
+            setErrorResult(null, String.format("Unknown error loading url %s", baseUrl));
+        }
         return result;
     }
-    
+
     private void setErrorResult(HttpURLConnection connection, String msg) {
         try {
-            result = new RamblerResult(baseUrl, connection.getResponseCode(), msg);
-        } catch(IOException ex) {
-            result = new RamblerResult(baseUrl, 0, msg);
+            if (connection != null) {
+                result = new RamblerResult(parentUrl, baseUrl, connection.getResponseCode(), msg);
+            } else {
+                result = new RamblerResult(parentUrl, baseUrl, 0, msg);
+            }
+        } catch (IOException ex) {
+            result = new RamblerResult(parentUrl, baseUrl, 0, msg);
         }
     }
 

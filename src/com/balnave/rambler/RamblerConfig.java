@@ -1,10 +1,8 @@
 package com.balnave.rambler;
 
-
-import java.net.MalformedURLException;
-
 /**
  * The config for a site walker
+ * Holds basic information required to find all site links
  * @author balnave
  */
 public class RamblerConfig {
@@ -12,12 +10,21 @@ public class RamblerConfig {
     private final String siteUrl;
     private final String includesRegExp;
     private final String excludesRegExp;
+    private long timeoutMs = 1000 * 60 * 15; // 15 mins before the ramble stops
+    private int maxThreadCount = 10;
+    private int maxLinkCount = 100;
+    private boolean strictMemoryManagement = false; // deletes child links and source string to reduce memory
+    
+    public RamblerConfig(String siteUrl) {
+        this(siteUrl, null, null);
+    }
+    
+    public RamblerConfig(String siteUrl, String includesRegExp) {
+        this(siteUrl, includesRegExp, null);
+    }
 
-    public RamblerConfig(String siteUrl, String includesRegExp, String excludesRegExp) throws MalformedURLException {
-        if (!siteUrl.endsWith("/")) {
-            throw new MalformedURLException(String.format("The site URL should end with a '/', but got %s", siteUrl));
-        }
-        this.siteUrl = siteUrl;
+    public RamblerConfig(String siteUrl, String includesRegExp, String excludesRegExp) {
+        this.siteUrl = RamblerHelper.addTrailingSlash(siteUrl);
         this.includesRegExp = includesRegExp;
         this.excludesRegExp = excludesRegExp;
     }
@@ -32,6 +39,38 @@ public class RamblerConfig {
 
     public String getExcludesRegExp() {
         return excludesRegExp;
+    }
+
+    public int getMaxThreadCount() {
+        return maxThreadCount;
+    }
+
+    public void setMaxThreadCount(int maxThreadCount) {
+        this.maxThreadCount = maxThreadCount;
+    }
+
+    public int getMaxLinkCount() {
+        return maxLinkCount;
+    }
+
+    public void setMaxLinkCount(int maxLinkCount) {
+        this.maxLinkCount = maxLinkCount;
+    }
+
+    public long getTimeoutMs() {
+        return timeoutMs;
+    }
+
+    public void setTimeoutMs(long timeoutMs) {
+        this.timeoutMs = timeoutMs;
+    }
+
+    public boolean isStrictMemoryManagement() {
+        return strictMemoryManagement;
+    }
+
+    public void setStrictMemoryManagement(boolean strictMemoryManagement) {
+        this.strictMemoryManagement = strictMemoryManagement;
     }
 
     
