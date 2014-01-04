@@ -1,7 +1,7 @@
 package com.balnave.rambler.reports;
 
-import com.balnave.rambler.RamblerConfig;
-import com.balnave.rambler.RamblerResult;
+import com.balnave.rambler.Config;
+import com.balnave.rambler.Result;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,11 +24,11 @@ import org.w3c.dom.Element;
 public class Summary extends AbstractReport {
 
     @Override
-    public boolean out(RamblerConfig config, Collection<RamblerResult> results, File fileOut) {
+    public boolean out(Config config, Collection<Result> results, File fileOut) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Collections.sort((List<RamblerResult>) results, sortResponseStatus);
+            Collections.sort((List<Result>) results, sortResponseStatus);
             int failureCount = getFailureCount(results);
             int errorCount = getErrorCount(results);
             // root elements
@@ -41,7 +41,7 @@ public class Summary extends AbstractReport {
             summary.setAttribute("errors", String.valueOf(errorCount));
             doc.appendChild(summary);
             // testcase elements
-            for (RamblerResult singleResult : results) {
+            for (Result singleResult : results) {
                 // staff elements
                 String status = "pass";
                 if (singleResult.isErrorResult()) {

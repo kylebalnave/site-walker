@@ -13,9 +13,9 @@ import junit.framework.TestCase;
  *
  * @author kyleb2
  */
-public class RamblerResultTest extends TestCase {
+public class ResultTest extends TestCase {
     
-    public RamblerResultTest(String testName) {
+    public ResultTest(String testName) {
         super(testName);
     }
     
@@ -30,44 +30,44 @@ public class RamblerResultTest extends TestCase {
     }
 
     /**
-     * Test of getResponseStatus method, of class RamblerResult.
+     * Test of getResponseStatus method, of class Result.
      */
     public void testGetResponseStatus() {
         System.out.println("getResponseStatus");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         int expResult = 0;
         int result = instance.getResponseStatus();
         assertEquals(expResult, result);
     }
 
     /**
-     * Test of getResponseMessage method, of class RamblerResult.
+     * Test of getResponseMessage method, of class Result.
      */
     public void testGetResponseMessage() {
         System.out.println("getResponseMessage");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         String expResult = "hello world";
         String result = instance.getResponseMessage();
         assertEquals(expResult, result);
     }
 
     /**
-     * Test of getReponseSource method, of class RamblerResult.
+     * Test of getReponseSource method, of class Result.
      */
     public void testGetReponseSource() {
         System.out.println("getReponseSource");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         String expResult = "";
         String result = instance.getReponseSource();
         assertEquals(expResult, result);
     }
 
     /**
-     * Test of setReponseSource method, of class RamblerResult.
+     * Test of setReponseSource method, of class Result.
      */
     public void testSetReponseSource() {
         System.out.println("setReponseSource");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         instance.setReponseSource("source");
         String expResult = "source";
         String result = instance.getReponseSource();
@@ -75,11 +75,11 @@ public class RamblerResultTest extends TestCase {
     }
 
     /**
-     * Test of getRequestUrl method, of class RamblerResult.
+     * Test of getRequestUrl method, of class Result.
      */
     public void testGetRequestUrl() {
         System.out.println("getRequestUrl");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         instance.setReponseSource("source");
         String expResult = "http://www.google.com/";
         String result = instance.getRequestUrl();
@@ -87,30 +87,30 @@ public class RamblerResultTest extends TestCase {
     }
 
     /**
-     * Test of getLinks method, of class RamblerResult.
+     * Test of getLinks method, of class Result.
      */
     public void testGetLinks() {
         System.out.println("getLinks");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         assertTrue(instance.getChildLinks() instanceof Collection);
     }
 
     /**
-     * Test of clearLinks method, of class RamblerResult.
+     * Test of clearLinks method, of class Result.
      */
     public void testClearLinks() {
         System.out.println("clearLinks");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         instance.setChildLinks(null);
         assertTrue(instance.getChildLinks() == null);
     }
 
     /**
-     * Test of searchSourceForLinks method, of class RamblerResult.
+     * Test of searchSourceForLinks method, of class Result.
      */
     public void testSearchSourceForLinks() throws Exception {
         System.out.println("searchSourceForLinks");
-        RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
+        Result instance = new Result("http://www.google.com/", 0, "hello world");
         String expResult = "http://www.google.com/apples-and-pears/index.jsp";
         Collection<String> result = instance.searchSourceForLinks("<a href='./apples-and-pears/index.jsp'><a href=\"./apples-and-pears/index2.jsp\">");
         assertEquals(2, result.size());

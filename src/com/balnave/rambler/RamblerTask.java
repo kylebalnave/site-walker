@@ -31,7 +31,7 @@ public class RamblerTask extends Task {
      */
         @Override
     public void execute() throws BuildException {
-        RamblerConfig config = new RamblerConfig(site, includes, excludes);
+        Config config = new Config(site, includes, excludes);
         config.setMaxLinkCount(Integer.valueOf(maxLinks));
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
@@ -42,7 +42,7 @@ public class RamblerTask extends Task {
         } catch (Exception ex) {
             throw new BuildException(String.format("Error running Rambler on site %s : %s", site, ex.getMessage()));
         }
-        Collection<RamblerResult> results = instance.getResults();
+        Collection<Result> results = instance.getResults();
         
         if (summaryPath != null) {
             boolean saved = new Summary().out(config, results, summaryPath);

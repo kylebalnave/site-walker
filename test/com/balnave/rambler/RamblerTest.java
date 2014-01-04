@@ -35,10 +35,10 @@ public class RamblerTest extends TestCase {
      * Test of getResults method, of class Rambler.
      */
     public void testGetResults() throws Exception {
-        RamblerConfig config = new RamblerConfig("http://www.disney.co.uk/disney-channel/", ".*", "^\\s+$");
-        config.setMaxLinkCount(100);
+        Config config = new Config("http://www.disney.co.uk/disney-channel/");
+        config.setMaxLinkCount(2000);
         config.setMaxThreadCount(20);
-        config.setStrictMemoryManagement(false);
+        config.setStrictMemoryManagement(true);
         Rambler instance = new Rambler(config);
         boolean report = new Log().out(config, instance.getResults());
         //assertEquals(100, results.size());

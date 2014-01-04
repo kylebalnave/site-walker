@@ -5,7 +5,7 @@ package com.balnave.rambler;
  * Holds basic information required to find all site links
  * @author balnave
  */
-public class RamblerConfig {
+public class Config {
     
     private final String siteUrl;
     private final String includesRegExp;
@@ -15,15 +15,15 @@ public class RamblerConfig {
     private int maxLinkCount = 100;
     private boolean strictMemoryManagement = false; // deletes child links and source string to reduce memory
     
-    public RamblerConfig(String siteUrl) {
+    public Config(String siteUrl) {
         this(siteUrl, null, null);
     }
     
-    public RamblerConfig(String siteUrl, String includesRegExp) {
+    public Config(String siteUrl, String includesRegExp) {
         this(siteUrl, includesRegExp, null);
     }
 
-    public RamblerConfig(String siteUrl, String includesRegExp, String excludesRegExp) {
+    public Config(String siteUrl, String includesRegExp, String excludesRegExp) {
         this.siteUrl = new URL(siteUrl).toString();
         this.includesRegExp = includesRegExp == null ? ".*" : includesRegExp;
         this.excludesRegExp = excludesRegExp == null ? "^\\s+$" : excludesRegExp;

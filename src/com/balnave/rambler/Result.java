@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  *
  * @author balnave
  */
-public final class RamblerResult {
+public final class Result {
 
     private List<String> childLinks = new ArrayList<String>();
     private List<String> parentUrls = new ArrayList<String>();
@@ -24,18 +24,18 @@ public final class RamblerResult {
     private String contentType = "";
     private int responseStatus = 0;
 
-    public RamblerResult(String requestUrl, int responseStatus, String responseMessage) {
+    public Result(String requestUrl, int responseStatus, String responseMessage) {
         this(requestUrl, requestUrl, 0, responseMessage);
     }
 
-    public RamblerResult(String parentUrl, String requestUrl, int responseStatus, String responseMessage) {
+    public Result(String parentUrl, String requestUrl, int responseStatus, String responseMessage) {
         this.requestUrl = requestUrl;
         this.responseStatus = responseStatus;
         this.responseMessage = responseMessage;
         this.parentUrls.add(parentUrl);
     }
 
-    public RamblerResult(String parentUrl, HttpURLConnection connection) {
+    public Result(String parentUrl, HttpURLConnection connection) {
         this.parentUrls.add(parentUrl);
         this.requestUrl = connection.getURL().toExternalForm();
         connection.setConnectTimeout(1000 * 30);
@@ -153,7 +153,7 @@ public final class RamblerResult {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof RamblerResult && (this.requestUrl.equalsIgnoreCase(((RamblerResult) obj).getRequestUrl()));
+        return obj instanceof Result && (this.requestUrl.equalsIgnoreCase(((Result) obj).getRequestUrl()));
 
     }
 

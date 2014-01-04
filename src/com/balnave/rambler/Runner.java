@@ -11,29 +11,29 @@ import java.util.concurrent.Callable;
  *
  * @author balnave
  */
-public class RamblerRunner implements Callable<RamblerResult> {
+public class Runner implements Callable<Result> {
 
     private final String parentUrl;
     private final String baseUrl;
-    private RamblerResult result;
+    private Result result;
     
-    public RamblerRunner(String baseUrl) {
+    public Runner(String baseUrl) {
         this(baseUrl, baseUrl);
     }
 
-    public RamblerRunner(String parentUrl, String baseUrl) {
+    public Runner(String parentUrl, String baseUrl) {
         this.parentUrl = parentUrl;
         this.baseUrl = baseUrl;
     }
 
     @Override
-    public RamblerResult call() throws Exception {
+    public Result call() throws Exception {
         URL urlToLoad;
         HttpURLConnection connection = null;
         try {
             urlToLoad = new URL(baseUrl);
             connection = (HttpURLConnection) urlToLoad.openConnection();
-            result = new RamblerResult(parentUrl, connection);
+            result = new Result(parentUrl, connection);
         } catch (MalformedURLException ex) {
             setErrorResult(connection, ex.getMessage());
         } catch (IOException ex) {
@@ -53,16 +53,16 @@ public class RamblerRunner implements Callable<RamblerResult> {
     private void setErrorResult(HttpURLConnection connection, String msg) {
         try {
             if (connection != null) {
-                result = new RamblerResult(parentUrl, baseUrl, connection.getResponseCode(), msg);
+                result = new Result(parentUrl, baseUrl, connection.getResponseCode(), msg);
             } else {
-                result = new RamblerResult(parentUrl, baseUrl, 0, msg);
+                result = new Result(parentUrl, baseUrl, 0, msg);
             }
         } catch (IOException ex) {
-            result = new RamblerResult(parentUrl, baseUrl, 0, msg);
+            result = new Result(parentUrl, baseUrl, 0, msg);
         }
     }
 
-    public RamblerResult getResult() {
+    public Result getResult() {
         return result;
     }
 

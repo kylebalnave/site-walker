@@ -9,17 +9,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Creates multiple RamblerRunner Classes to scrape a website
+ * Creates multiple Runner Classes to scrape a website
  *
  * @author balnave
  */
 public class Rambler {
 
-    private final Collection<RamblerResult> results = new ArrayList<RamblerResult>();
+    private final Collection<Result> results = new ArrayList<Result>();
     private final Collection<String[]> queuedUrls = new ArrayList<String[]>();
-    private final RamblerConfig config;
+    private final Config config;
 
-    public Rambler(RamblerConfig config) throws Exception {
+    public Rambler(Config config) throws Exception {
         long startTimeMs = System.currentTimeMillis();
         this.config = config;
         //
@@ -31,12 +31,12 @@ public class Rambler {
         while (canContinueWalkingSiteUrls(startTimeMs)) {
             //
             // create multiple threads to load the urls
-            Collection<RamblerRunner> callables = loadQueuedUrls();
+            Collection<Runner> callables = loadQueuedUrls();
             execSvc.invokeAll(callables, 30, TimeUnit.SECONDS);
             //
             // loop throw the threads and get any child links to queue
-            for (RamblerRunner runner : callables) {
-                RamblerResult result = runner.getResult();
+            for (Runner runner : callables) {
+                Result result = runner.getResult();
                 if (result != null && !results.contains(result)) {
                     results.add(result);
                     queueChildLinks(result);
@@ -69,13 +69,13 @@ public class Rambler {
      * @param result
      * @throws Exception
      */
-    private void queueChildLinks(RamblerResult result) throws Exception {
+    private void queueChildLinks(Result result) throws Exception {
         if (result != null && result.getChildLinks() != null) {
             for (String tagHref : result.getChildLinks()) {
                 boolean matchesIncludedUrl = config.getIncludesRegExp() == null || tagHref.matches(config.getIncludesRegExp());
                 boolean matchesExcludedUrl = config.getIncludesRegExp() != null && tagHref.matches(config.getExcludesRegExp());
                 if (matchesIncludedUrl && !matchesExcludedUrl) {
-                    RamblerResult storedResult = getResultWithUrl(tagHref);
+                    Result storedResult = getResultWithUrl(tagHref);
                     boolean urlIsAlreadyLoaded = storedResult != null;
                     String[] queueItem = createQueueItem(result.getRequestUrl(), tagHref);
                     boolean isQueued = queueContains(queueItem[1]);
@@ -110,8 +110,8 @@ public class Rambler {
      * @param url
      * @return
      */
-    private RamblerResult getResultWithUrl(String url) {
-        for (RamblerResult includedResult : results) {
+    private Result getResultWithUrl(String url) {
+        for (Result includedResult : results) {
             if (includedResult != null && includedResult.getRequestUrl().equals(url)) {
                 return includedResult;
             }
@@ -125,8 +125,8 @@ public class Rambler {
      * @param maxThreads
      * @return
      */
-    private Collection<RamblerRunner> loadQueuedUrls() {
-        Collection<RamblerRunner> callables = new ArrayList<RamblerRunner>();
+    private Collection<Runner> loadQueuedUrls() {
+        Collection<Runner> callables = new ArrayList<Runner>();
         int threadIndex = 0;
         //
         // create multiple threads to load urls
@@ -134,7 +134,7 @@ public class Rambler {
             threadIndex++;
             String[] queuedUrl = ((List<String[]>) queuedUrls).get(0);
             queuedUrls.remove(queuedUrl);
-            callables.add(new RamblerRunner(queuedUrl[0], queuedUrl[1]));
+            callables.add(new Runner(queuedUrl[0], queuedUrl[1]));
         }
         return callables;
     }
@@ -167,7 +167,7 @@ public class Rambler {
         return item;
     }
 
-    public Collection<RamblerResult> getResults() {
+    public Collection<Result> getResults() {
         return results;
     }
 }

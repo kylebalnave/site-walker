@@ -1,7 +1,7 @@
 package com.balnave.rambler.reports;
 
-import com.balnave.rambler.RamblerConfig;
-import com.balnave.rambler.RamblerResult;
+import com.balnave.rambler.Config;
+import com.balnave.rambler.Result;
 import java.io.File;
 import java.util.Collection;
 
@@ -14,14 +14,14 @@ public class Log extends AbstractReport {
     
 
     @Override
-    public boolean out(RamblerConfig config, Collection<RamblerResult> results, File fileOut) {
-        for (RamblerResult result : getFailureResults(results)) {
+    public boolean out(Config config, Collection<Result> results, File fileOut) {
+        for (Result result : getFailureResults(results)) {
             System.out.println(String.format("Failure %s %s %s",
                     result.getResponseStatus(),
                     result.getResponseMessage(),
                     result.getRequestUrl()));
         }
-        for (RamblerResult result : getFailureResults(results)) {
+        for (Result result : getFailureResults(results)) {
             System.out.println(String.format("Error %s %s %s",
                     result.getResponseStatus(),
                     result.getResponseMessage(),
