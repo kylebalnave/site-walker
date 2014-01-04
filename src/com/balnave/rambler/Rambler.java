@@ -42,7 +42,7 @@ public class Rambler {
                     queueChildLinks(result);
                 }
                 if (result != null && config.isStrictMemoryManagement()) {
-                    result.clearLinks();
+                    result.setChildLinks(null);
                     result.setReponseSource(null);
                 }
             }
@@ -70,15 +70,20 @@ public class Rambler {
      * @throws Exception
      */
     private void queueChildLinks(RamblerResult result) throws Exception {
-        if (result != null && result.getLinks() != null) {
-            for (String tagHref : result.getLinks()) {
-                boolean urlIsAlreadyLoaded = hasResultWithUrl(tagHref);
+        if (result != null && result.getChildLinks() != null) {
+            for (String tagHref : result.getChildLinks()) {
                 boolean matchesIncludedUrl = config.getIncludesRegExp() == null || tagHref.matches(config.getIncludesRegExp());
                 boolean matchesExcludedUrl = config.getIncludesRegExp() != null && tagHref.matches(config.getExcludesRegExp());
-                String[] queueItem = createQueueItem(result.getRequestUrl(), tagHref);
-                boolean isQueued = queueContains(queueItem[1]);
-                if (!isQueued && !urlIsAlreadyLoaded && matchesIncludedUrl && !matchesExcludedUrl) {
-                    queuedUrls.add(createQueueItem(result.getRequestUrl(), tagHref));
+                if (matchesIncludedUrl && !matchesExcludedUrl) {
+                    RamblerResult storedResult = getResultWithUrl(tagHref);
+                    boolean urlIsAlreadyLoaded = storedResult != null;
+                    String[] queueItem = createQueueItem(result.getRequestUrl(), tagHref);
+                    boolean isQueued = queueContains(queueItem[1]);
+                    if (urlIsAlreadyLoaded && !config.isStrictMemoryManagement()) {
+                        getResultWithUrl(tagHref).addParentUrl(result.getRequestUrl());
+                    } else if (!urlIsAlreadyLoaded && !isQueued) {
+                        queuedUrls.add(createQueueItem(result.getRequestUrl(), tagHref));
+                    }
                 }
             }
         }
@@ -105,13 +110,13 @@ public class Rambler {
      * @param url
      * @return
      */
-    private boolean hasResultWithUrl(String url) {
+    private RamblerResult getResultWithUrl(String url) {
         for (RamblerResult includedResult : results) {
             if (includedResult != null && includedResult.getRequestUrl().equals(url)) {
-                return true;
+                return includedResult;
             }
         }
-        return false;
+        return null;
     }
 
     /**

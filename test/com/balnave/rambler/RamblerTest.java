@@ -6,6 +6,8 @@
 
 package com.balnave.rambler;
 
+import com.balnave.rambler.reports.AbstractReport;
+import com.balnave.rambler.reports.Log;
 import java.util.Collection;
 import junit.framework.TestCase;
 
@@ -33,17 +35,13 @@ public class RamblerTest extends TestCase {
      * Test of getResults method, of class Rambler.
      */
     public void testGetResults() throws Exception {
-        RamblerConfig config = new RamblerConfig("http://www.disney.co.uk/disney-channel/",
-        "http://www\\.disney\\.co\\.uk/disney-channel/.*",
-        ".*interstitial.*");
-        config.setMaxLinkCount(2000);
+        RamblerConfig config = new RamblerConfig("http://www.disney.co.uk/disney-channel/", ".*", "^\\s+$");
+        config.setMaxLinkCount(100);
         config.setMaxThreadCount(20);
-        config.setStrictMemoryManagement(true);
+        config.setStrictMemoryManagement(false);
         Rambler instance = new Rambler(config);
-        Collection<RamblerResult> results = instance.getResults();
-        String reportPath = "./test/channel-report.xml";
-        boolean saved = RamblerReport.toXMLFile(config.getSiteUrl(), results, reportPath);
-        System.out.println(String.format("Report saved to %s : %s", reportPath, saved));
+        boolean report = new Log().out(config, instance.getResults());
+        //assertEquals(100, results.size());
     }
     
 }

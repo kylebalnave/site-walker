@@ -19,11 +19,14 @@
 		</path>
 		<taskdef name="rambler" classname="com.balnave.rambler.RamblerTask" classpathref="rambler-classpath" />
         <echo>Lets Ramble!</echo>
-		<rambler    site="http://www.google.com/"
+		<rambler    site="http://www.disney.co.uk/disney-channel/"
+					includes="^http:\/\/www.disney.co.uk\/disney-channel.*$"
+					excludes="^\s*$"
 					verbose="false" 
-					maxThreads="5"
-                    maxLinks="5"
-					sourcePath="C:\svn" />
+					maxThreads="80"
+					maxLinks="2000"
+					reportPath="./channel-junit.xml"
+					summaryPath="./channel-summary.xml" /> 
 		<!--
         <rambler    site="http://www.google.com/"
                     includes=".*"

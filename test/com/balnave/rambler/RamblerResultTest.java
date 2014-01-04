@@ -92,7 +92,7 @@ public class RamblerResultTest extends TestCase {
     public void testGetLinks() {
         System.out.println("getLinks");
         RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
-        assertTrue(instance.getLinks() instanceof Collection);
+        assertTrue(instance.getChildLinks() instanceof Collection);
     }
 
     /**
@@ -101,8 +101,8 @@ public class RamblerResultTest extends TestCase {
     public void testClearLinks() {
         System.out.println("clearLinks");
         RamblerResult instance = new RamblerResult("http://www.google.com/", 0, "hello world");
-        instance.clearLinks();
-        assertTrue(instance.getLinks() instanceof Collection);
+        instance.setChildLinks(null);
+        assertTrue(instance.getChildLinks() == null);
     }
 
     /**

@@ -24,9 +24,9 @@ public class RamblerConfig {
     }
 
     public RamblerConfig(String siteUrl, String includesRegExp, String excludesRegExp) {
-        this.siteUrl = RamblerHelper.addTrailingSlash(siteUrl);
-        this.includesRegExp = includesRegExp;
-        this.excludesRegExp = excludesRegExp;
+        this.siteUrl = new URL(siteUrl).toString();
+        this.includesRegExp = includesRegExp == null ? ".*" : includesRegExp;
+        this.excludesRegExp = excludesRegExp == null ? "^\\s+$" : excludesRegExp;
     }
 
     public String getSiteUrl() {
