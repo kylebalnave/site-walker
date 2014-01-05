@@ -21,6 +21,7 @@ public class Rambler {
     private final List<Result> results = new ArrayList<Result>();
     private final Queue queue = new Queue();
     private final Config config;
+    private boolean forceStop = false;
 
     public Rambler(Config config) throws Exception {
         long startTimeMs = System.currentTimeMillis();
@@ -31,7 +32,7 @@ public class Rambler {
         //
         // loop through each queued url and load
         ExecutorService execSvc = Executors.newFixedThreadPool(config.getMaxThreadCount());
-        while (!queue.isEmpty() && results.size() < config.getMaxResultCount()) {
+        while (!queue.isEmpty() && results.size() < config.getMaxResultCount() && forceStop == false) {
             //
             // create multiple threads to load the urls
             Collection<Runner> callables = loadQueuedUrls();
@@ -152,4 +153,10 @@ public class Rambler {
     public List<Result> getResults() {
         return results;
     }
+
+    public void setForceStop(boolean forceStop) {
+        this.forceStop = forceStop;
+    }
+    
+    
 }
