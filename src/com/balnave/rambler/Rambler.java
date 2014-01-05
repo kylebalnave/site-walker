@@ -9,14 +9,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Creates multiple Runner Classes to scrape a website
+ * Creates multiple Threaded Runner Classes to scrape a web site's links
  *
  * @author balnave
  */
 public class Rambler {
 
-    private final Collection<Result> results = new ArrayList<Result>();
-    private final Collection<String[]> queuedUrls = new ArrayList<String[]>();
+    private final List<Result> results = new ArrayList<Result>();
+    private final List<String[]> queuedUrls = new ArrayList<String[]>();
     private final Config config;
 
     public Rambler(Config config) throws Exception {
@@ -120,7 +120,7 @@ public class Rambler {
     }
 
     /**
-     *
+     * Load multiple urls using Threads
      * @param execSvc
      * @param maxThreads
      * @return
@@ -159,6 +159,12 @@ public class Rambler {
         return queuedUrls.size() > 0 && results.size() < config.getMaxLinkCount();
     }
 
+    /**
+     * Creates an item to be queued
+     * @param parentUrl
+     * @param childUrl
+     * @return 
+     */
     private String[] createQueueItem(String parentUrl, String childUrl) {
         String[] item;
         item = new String[2];
@@ -167,7 +173,11 @@ public class Rambler {
         return item;
     }
 
-    public Collection<Result> getResults() {
+    /**
+     * Returns the Results as a List
+     * @return
+     */
+    public List<Result> getResults() {
         return results;
     }
 }

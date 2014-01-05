@@ -2,12 +2,11 @@ package com.balnave.rambler;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.Callable;
 
 /**
- * Loads a url
+ * Loads a url and creates a Result
  *
  * @author balnave
  */
@@ -27,18 +26,15 @@ public class Runner implements Callable<Result> {
     }
 
     @Override
-    public Result call() throws Exception {
+    public Result call() {
         URL urlToLoad;
         HttpURLConnection connection = null;
         try {
             urlToLoad = new URL(baseUrl);
             connection = (HttpURLConnection) urlToLoad.openConnection();
             result = new Result(parentUrl, connection);
-        } catch (MalformedURLException ex) {
-            setErrorResult(connection, ex.getMessage());
-        } catch (IOException ex) {
-            setErrorResult(connection, ex.getMessage());
         } catch (Exception ex) {
+            // keep a genral exception here to catch all!
             setErrorResult(connection, ex.getMessage());
         }
         if (connection != null) {

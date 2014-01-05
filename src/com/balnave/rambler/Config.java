@@ -1,12 +1,12 @@
 package com.balnave.rambler;
 
 /**
- * The config for a site walker
- * Holds basic information required to find all site links
+ * Holds basic information required by a Rambler
+ *
  * @author balnave
  */
 public class Config {
-    
+
     private final String siteUrl;
     private final String includesRegExp;
     private final String excludesRegExp;
@@ -14,11 +14,12 @@ public class Config {
     private int maxThreadCount = 10;
     private int maxLinkCount = 100;
     private boolean strictMemoryManagement = false; // deletes child links and source string to reduce memory
-    
+
     public Config(String siteUrl) {
         this(siteUrl, null, null);
     }
     
+
     public Config(String siteUrl, String includesRegExp) {
         this(siteUrl, includesRegExp, null);
     }
@@ -73,6 +74,4 @@ public class Config {
         this.strictMemoryManagement = strictMemoryManagement;
     }
 
-    
-    
 }

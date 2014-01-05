@@ -4,7 +4,7 @@ import com.balnave.rambler.reports.AbstractReport;
 import com.balnave.rambler.reports.Junit;
 import com.balnave.rambler.reports.Log;
 import com.balnave.rambler.reports.Summary;
-import java.util.Collection;
+import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
@@ -42,26 +42,26 @@ public class RamblerTask extends Task {
         } catch (Exception ex) {
             throw new BuildException(String.format("Error running Rambler on site %s : %s", site, ex.getMessage()));
         }
-        Collection<Result> results = instance.getResults();
+        List<Result> results = instance.getResults();
         
         if (summaryPath != null) {
-            boolean saved = new Summary().out(config, results, summaryPath);
+            boolean saved = new Summary(config, results).out(summaryPath);
             System.out.println(String.format("Summary report saved to %s : %s", summaryPath, saved));
         } 
         if (reportPath != null) {
-            boolean saved = new Junit().out(config, results, reportPath);
+            boolean saved = new Junit(config, results).out(reportPath);
             System.out.println(String.format("JUnit report saved to %s : %s", reportPath, saved));
         }
         if (reportPath == null) {
-            AbstractReport report = new Log();
-            if (report.getFailureCount(results) > 0 || report.getErrorCount(results) > 0) {
+            AbstractReport report = new Log(config, results);
+            if (report.getFailureCount() > 0 || report.getErrorCount() > 0) {
                 if (Boolean.valueOf(verbose)) {
-                    boolean saved = new Log().out(config, results);
+                    report.out();
                 }
                 System.out.println(String.format("No Report saved... Links: %s Failures: %s Errors: %s",
                         results.size(),
-                        report.getFailureCount(results),
-                        report.getErrorCount(results)));
+                        report.getFailureCount(),
+                        report.getErrorCount()));
                 throw new BuildException(String.format("One or more Failures or Errors 'Rambling' %s", site));
             }
         }

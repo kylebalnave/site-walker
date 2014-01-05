@@ -1,14 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.balnave.rambler.reports;
 
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
-import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -23,19 +16,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- *
+ * Exports a Junit TestSuite to an XML file
  * @author balnave
  */
 public class Junit extends AbstractReport {
 
+    public Junit(Config config, List<Result> results) {
+        super(config, results);
+    }
+
     @Override
-    public boolean out(Config config, Collection<Result> results, File fileOut) {
+    public boolean out(String fileOut) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Collections.sort((List<Result>) results, sortResponseStatus);
-            int failureCount = getFailureCount(results);
-            int errorCount = getErrorCount(results);
+            Collections.sort(results, sortResponseStatus);
+            int failureCount = getFailureCount();
+            int errorCount = getErrorCount();
             // root elements
             Document doc = docBuilder.newDocument();
             // testsuites element
@@ -93,6 +90,11 @@ public class Junit extends AbstractReport {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void out() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

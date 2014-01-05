@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * A Result holds information obtained by the loaded Runner
  * @author balnave
  */
 public final class Result {
