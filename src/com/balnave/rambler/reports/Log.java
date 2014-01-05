@@ -2,6 +2,7 @@ package com.balnave.rambler.reports;
 
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
+import com.balnave.rambler.logging.Logger;
 import java.util.List;
 
 /**
@@ -18,16 +19,16 @@ public class Log extends AbstractReport {
     @Override
     public void out() {
         for (Result result : getFailureResults()) {
-            System.out.println(String.format("Failure %s %s %s",
+            Logger.log(String.format("Failure %s %s %s",
                     result.getResponseStatus(),
                     result.getResponseMessage(),
-                    result.getRequestUrl()));
+                    result.getRequestUrl()), Logger.ALLWAYS);
         }
         for (Result result : getFailureResults()) {
-            System.out.println(String.format("Error %s %s %s",
+            Logger.log(String.format("Error %s %s %s",
                     result.getResponseStatus(),
                     result.getResponseMessage(),
-                    result.getRequestUrl()));
+                    result.getRequestUrl()), Logger.ALLWAYS);
         }
     }
 

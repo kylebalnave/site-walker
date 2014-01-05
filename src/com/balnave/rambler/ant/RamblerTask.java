@@ -1,5 +1,9 @@
-package com.balnave.rambler;
+package com.balnave.rambler.ant;
 
+import com.balnave.rambler.Config;
+import com.balnave.rambler.Rambler;
+import com.balnave.rambler.Result;
+import com.balnave.rambler.logging.Logger;
 import com.balnave.rambler.reports.AbstractReport;
 import com.balnave.rambler.reports.Junit;
 import com.balnave.rambler.reports.Log;
@@ -32,10 +36,12 @@ public class RamblerTask extends Task {
         @Override
     public void execute() throws BuildException {
         Config config = new Config(site, includes, excludes);
-        config.setMaxLinkCount(Integer.valueOf(maxLinks));
+        config.setMaxResultCount(Integer.valueOf(maxLinks));
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
-        config.setStrictMemoryManagement(summaryPath == null);
+        config.setRetainChildLinks(summaryPath != null);
+        config.setRetainHtmlSource(summaryPath != null);
+        config.setRetainParentLinks(summaryPath != null);
         Rambler instance = null;
         try {
             instance = new Rambler(config);
@@ -46,11 +52,11 @@ public class RamblerTask extends Task {
         
         if (summaryPath != null) {
             boolean saved = new Summary(config, results).out(summaryPath);
-            System.out.println(String.format("Summary report saved to %s : %s", summaryPath, saved));
+            Logger.log(String.format("Summary report saved to %s : %s", summaryPath, saved),Logger.DEBUG);
         } 
         if (reportPath != null) {
             boolean saved = new Junit(config, results).out(reportPath);
-            System.out.println(String.format("JUnit report saved to %s : %s", reportPath, saved));
+            Logger.log(String.format("JUnit report saved to %s : %s", reportPath, saved), Logger.DEBUG);
         }
         if (reportPath == null) {
             AbstractReport report = new Log(config, results);
@@ -58,10 +64,10 @@ public class RamblerTask extends Task {
                 if (Boolean.valueOf(verbose)) {
                     report.out();
                 }
-                System.out.println(String.format("No Report saved... Links: %s Failures: %s Errors: %s",
+                Logger.log(String.format("No Report saved... Links: %s Failures: %s Errors: %s",
                         results.size(),
                         report.getFailureCount(),
-                        report.getErrorCount()));
+                        report.getErrorCount()), Logger.DEBUG);
                 throw new BuildException(String.format("One or more Failures or Errors 'Rambling' %s", site));
             }
         }
@@ -98,8 +104,6 @@ public class RamblerTask extends Task {
     public void setSummaryPath(String summaryPath) {
         this.summaryPath = summaryPath;
     }
-
-    
 
     /**
      * true|false

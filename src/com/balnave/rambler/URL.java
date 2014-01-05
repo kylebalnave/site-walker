@@ -2,6 +2,7 @@ package com.balnave.rambler;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Used to normalise a url a get other criteria
@@ -21,7 +22,7 @@ public final class URL {
     }
 
     public static boolean isValidURL(String url) {
-        return createURL(url) != null;
+        return createURI(url) != null;
     }
 
     /**
@@ -31,14 +32,20 @@ public final class URL {
      * @return
      */
     private static URI createURI(String url) {
+        if(url == null) {
+            return null;
+        }
         try {
             return new URI(url);
-        } catch (Exception ex) {
+        } catch (URISyntaxException ex) {
             return null;
         }
     }
 
     private static java.net.URL createURL(String url) {
+        if(url == null) {
+            return null;
+        }
         try {
             return new java.net.URL(url);
         } catch (MalformedURLException ex) {
@@ -105,6 +112,9 @@ public final class URL {
      * @param url
      * @return
      */
+    protected String normaliseLink(String url) {
+        return normaliseLink(url, url);
+    }
     protected String normaliseLink(String baseUrl, String url) {
         baseUrl = isValidURL(baseUrl) ? addTrailingSlash(baseUrl) : baseUrl;
         url = isValidURL(url) ? addTrailingSlash(url) : url;

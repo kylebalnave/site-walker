@@ -1,5 +1,7 @@
 package com.balnave.rambler;
 
+import com.balnave.rambler.logging.Logger;
+import com.balnave.rambler.queue.QueueItem;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -12,36 +14,34 @@ import java.util.concurrent.Callable;
  */
 public class Runner implements Callable<Result> {
 
-    private final String parentUrl;
-    private final String baseUrl;
+    private final QueueItem itemToLoad;
     private Result result;
     
-    public Runner(String baseUrl) {
-        this(baseUrl, baseUrl);
-    }
-
-    public Runner(String parentUrl, String baseUrl) {
-        this.parentUrl = parentUrl;
-        this.baseUrl = baseUrl;
+    public Runner(QueueItem itemToLoad) {
+        this.itemToLoad = itemToLoad;
     }
 
     @Override
     public Result call() {
         URL urlToLoad;
+        String urlStr = itemToLoad.getItemUrl().toString();
         HttpURLConnection connection = null;
         try {
-            urlToLoad = new URL(baseUrl);
+            urlToLoad = new URL(urlStr);
+            Logger.log(String.format("Runner: loading %s", urlStr), Logger.DEBUG);
             connection = (HttpURLConnection) urlToLoad.openConnection();
-            result = new Result(parentUrl, connection);
+            result = new Result(itemToLoad.getParentUrl().toString(), connection);
         } catch (Exception ex) {
             // keep a genral exception here to catch all!
+            Logger.log(String.format("Runner Exception: %s %s", urlStr, ex.getMessage()), Logger.WARNING);
             setErrorResult(connection, ex.getMessage());
         }
         if (connection != null) {
             connection.disconnect();
         }
         if (result == null) {
-            setErrorResult(null, String.format("Unknown error loading url %s", baseUrl));
+            Logger.log(String.format("Runner Exception: %s %s", urlStr, "Result is NULL!"), Logger.WARNING);
+            setErrorResult(null, String.format("Unknown error loading url %s", urlStr));
         }
         return result;
     }
@@ -49,12 +49,12 @@ public class Runner implements Callable<Result> {
     private void setErrorResult(HttpURLConnection connection, String msg) {
         try {
             if (connection != null) {
-                result = new Result(parentUrl, baseUrl, connection.getResponseCode(), msg);
+                result = new Result(itemToLoad.getParentUrl().toString(), itemToLoad.getItemUrl().toString(), connection.getResponseCode(), msg);
             } else {
-                result = new Result(parentUrl, baseUrl, 0, msg);
+                result = new Result(itemToLoad.getParentUrl().toString(), itemToLoad.getItemUrl().toString(), 0, msg);
             }
         } catch (IOException ex) {
-            result = new Result(parentUrl, baseUrl, 0, msg);
+            result = new Result(itemToLoad.getParentUrl().toString(), itemToLoad.getItemUrl().toString(), 0, msg);
         }
     }
 

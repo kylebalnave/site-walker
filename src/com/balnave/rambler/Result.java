@@ -1,5 +1,6 @@
 package com.balnave.rambler;
 
+import com.balnave.rambler.logging.Logger;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 
 /**
  * A Result holds information obtained by the loaded Runner
+ *
  * @author balnave
  */
 public final class Result {
@@ -53,6 +55,7 @@ public final class Result {
             this.responseMessage = ioex.getMessage();
             this.reponseSource = "";
         }
+        Logger.log(String.format("Result: %s, %s", this.responseStatus, this.requestUrl), Logger.DEBUG);
     }
 
     public int getResponseStatus() {
@@ -125,11 +128,16 @@ public final class Result {
         Matcher m = p.matcher(source);
         while (m.find()) {
             String href = m.group(1) == null ? m.group(2) : m.group(1);
-            if (URL.isValidURL(href)) {
+            boolean isAllowedType = !href.matches(".*\\.(ico|css|js)$");
+            Logger.log(String.format("Result: %s found child href %s", URL.isValidURL(href), href), Logger.DEBUG);
+            if (isAllowedType && URL.isValidURL(href)) {
                 URL hrefUrl = new URL(requestUrl, href);
                 String normalisedUrl = hrefUrl.toString();
                 if (!result.contains(normalisedUrl)) {
                     result.add(normalisedUrl);
+                    Logger.log(String.format("Result: found child link %s", normalisedUrl), Logger.DEBUG);
+                } else {
+                    Logger.log(String.format("Result: ignoring duplicate child link %s", normalisedUrl), Logger.DEBUG);
                 }
             }
         }

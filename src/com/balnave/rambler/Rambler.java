@@ -1,5 +1,8 @@
 package com.balnave.rambler;
 
+import com.balnave.rambler.logging.Logger;
+import com.balnave.rambler.queue.QueueItem;
+import com.balnave.rambler.queue.Queue;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +19,7 @@ import java.util.concurrent.TimeoutException;
 public class Rambler {
 
     private final List<Result> results = new ArrayList<Result>();
-    private final List<String[]> queuedUrls = new ArrayList<String[]>();
+    private final Queue queue = new Queue();
     private final Config config;
 
     public Rambler(Config config) throws Exception {
@@ -24,11 +27,11 @@ public class Rambler {
         this.config = config;
         //
         // add the first url to the queue
-        queuedUrls.add(createQueueItem(config.getSiteUrl(), config.getSiteUrl()));
+        queue.add(config.getSiteUrl());
         //
         // loop through each queued url and load
         ExecutorService execSvc = Executors.newFixedThreadPool(config.getMaxThreadCount());
-        while (canContinueWalkingSiteUrls(startTimeMs)) {
+        while (!queue.isEmpty() && results.size() < config.getMaxResultCount()) {
             //
             // create multiple threads to load the urls
             Collection<Runner> callables = loadQueuedUrls();
@@ -41,15 +44,27 @@ public class Rambler {
                     results.add(result);
                     queueChildLinks(result);
                 }
-                if (result != null && config.isStrictMemoryManagement()) {
-                    result.setChildLinks(null);
-                    result.setReponseSource(null);
+                if (result != null) {
+                    if (!config.isRetainChildLinks()) {
+                        result.setChildLinks(new ArrayList<String>());
+                    }
+                    if (!config.isRetainHtmlSource()) {
+                        result.setReponseSource("");
+                    }
                 }
             }
             callables.clear();
             //
             // check if the timeout has been exceeded
             long timeSinceStartMs = System.currentTimeMillis() - startTimeMs;
+            //
+            // debug status
+            Logger.log(String.format("Rambler: Queue: %s, Complete: %s, Elapsed Time: %s:%s", 
+                    queue.size(),
+                    results.size(),
+                    TimeUnit.MILLISECONDS.toMinutes(timeSinceStartMs),
+                    TimeUnit.MILLISECONDS.toSeconds(timeSinceStartMs) - (60 * TimeUnit.MILLISECONDS.toMinutes(timeSinceStartMs))), Logger.ALLWAYS);
+
             if (timeSinceStartMs >= config.getTimeoutMs()) {
                 throw new TimeoutException(String.format("Timeout of %sms caused Rambler to stop!", config.getTimeoutMs()));
             } else {
@@ -59,7 +74,7 @@ public class Rambler {
             }
 
         }
-        System.out.println(String.format("Site %s finished!", config.getSiteUrl()));
+        Logger.log(String.format("Site %s finished rambling!", config.getSiteUrl()), Logger.ALLWAYS);
     }
 
     /**
@@ -71,37 +86,27 @@ public class Rambler {
      */
     private void queueChildLinks(Result result) throws Exception {
         if (result != null && result.getChildLinks() != null) {
+            Logger.log(String.format("Rambler: child link count %s", result.getChildLinks().size()), Logger.DEBUG);
             for (String tagHref : result.getChildLinks()) {
-                boolean matchesIncludedUrl = config.getIncludesRegExp() == null || tagHref.matches(config.getIncludesRegExp());
-                boolean matchesExcludedUrl = config.getIncludesRegExp() != null && tagHref.matches(config.getExcludesRegExp());
+                
+                boolean matchesIncludedUrl = tagHref.matches(config.getIncludesRegExp());
+                Logger.log(String.format("Rambler: checking child url %s", tagHref), Logger.DEBUG);
+                Logger.log(String.format("Rambler: child matches includes patterns %s: %s", config.getIncludesRegExp(), matchesIncludedUrl), Logger.DEBUG);
+                boolean matchesExcludedUrl = tagHref.matches(config.getExcludesRegExp());
+                Logger.log(String.format("Rambler: child matches excludes patterns %s: %s", config.getExcludesRegExp(), matchesExcludedUrl), Logger.DEBUG);
                 if (matchesIncludedUrl && !matchesExcludedUrl) {
                     Result storedResult = getResultWithUrl(tagHref);
-                    boolean urlIsAlreadyLoaded = storedResult != null;
-                    String[] queueItem = createQueueItem(result.getRequestUrl(), tagHref);
-                    boolean isQueued = queueContains(queueItem[1]);
-                    if (urlIsAlreadyLoaded && !config.isStrictMemoryManagement()) {
+                    boolean resultExists = storedResult != null;
+                    boolean isQueued = queue.contains(tagHref);
+                    Logger.log(String.format("Rambler: child link loaded (%s), queued (%s)", resultExists, isQueued), Logger.DEBUG);
+                    if (resultExists && config.isRetainParentLinks()) {
                         getResultWithUrl(tagHref).addParentUrl(result.getRequestUrl());
-                    } else if (!urlIsAlreadyLoaded && !isQueued) {
-                        queuedUrls.add(createQueueItem(result.getRequestUrl(), tagHref));
+                    } else if (!resultExists && !isQueued) {
+                        queue.add(result.getRequestUrl(), tagHref);
                     }
                 }
             }
         }
-    }
-
-    /**
-     * Checks if the queue contains a url
-     *
-     * @param url
-     * @return
-     */
-    private boolean queueContains(String url) {
-        for (String[] item : queuedUrls) {
-            if (item[1].equalsIgnoreCase(url)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -121,6 +126,7 @@ public class Rambler {
 
     /**
      * Load multiple urls using Threads
+     *
      * @param execSvc
      * @param maxThreads
      * @return
@@ -130,51 +136,17 @@ public class Rambler {
         int threadIndex = 0;
         //
         // create multiple threads to load urls
-        while (threadIndex < config.getMaxThreadCount() && !queuedUrls.isEmpty()) {
+        while (threadIndex < config.getMaxThreadCount() && !queue.isEmpty()) {
+            QueueItem queueItem = queue.removeFirst();
+            callables.add(new Runner(queueItem));
             threadIndex++;
-            String[] queuedUrl = ((List<String[]>) queuedUrls).get(0);
-            queuedUrls.remove(queuedUrl);
-            callables.add(new Runner(queuedUrl[0], queuedUrl[1]));
         }
         return callables;
     }
 
     /**
-     * Checks if the site walking can continue
-     *
-     * @param startTimeMs
-     * @return
-     */
-    private boolean canContinueWalkingSiteUrls(long startTimeMs) {
-        //
-        // check if the timeout has been exceeded
-        long timeSinceStartMs = System.currentTimeMillis() - startTimeMs;
-        //
-        // debug status
-        System.out.println(String.format("Queue: %s, Complete: %s, Elapsed Time: %s:%s",
-                queuedUrls.size(),
-                results.size(),
-                TimeUnit.MILLISECONDS.toMinutes(timeSinceStartMs),
-                TimeUnit.MILLISECONDS.toSeconds(timeSinceStartMs) - (60 * TimeUnit.MILLISECONDS.toMinutes(timeSinceStartMs))));
-        return queuedUrls.size() > 0 && results.size() < config.getMaxLinkCount();
-    }
-
-    /**
-     * Creates an item to be queued
-     * @param parentUrl
-     * @param childUrl
-     * @return 
-     */
-    private String[] createQueueItem(String parentUrl, String childUrl) {
-        String[] item;
-        item = new String[2];
-        item[0] = parentUrl;
-        item[1] = childUrl;
-        return item;
-    }
-
-    /**
      * Returns the Results as a List
+     *
      * @return
      */
     public List<Result> getResults() {

@@ -31,6 +31,7 @@ public class URLTest extends TestCase {
 
     /**
      * Test of getUrlDomain method, of class URL.
+     * @throws java.net.MalformedURLException
      */
     public void testGetUrlDomainAbsoluteFileUrl() throws MalformedURLException {
         System.out.println("testGetUrlDomainAbsoluteFileUrl");
@@ -75,6 +76,7 @@ public class URLTest extends TestCase {
 
     /**
      * Test of normaliseLink method, of class URL.
+     * @throws java.net.MalformedURLException
      */
     public void testNormaliseRelativeParentFolderLink() throws MalformedURLException {
         System.out.println("testNormaliseRelativeLink");
@@ -101,6 +103,14 @@ public class URLTest extends TestCase {
         URL instance = new URL(baseUrl, url);
         String expResult = "http://www.google.co.uk/newfile.jsp";
         String result = instance.normaliseLink(baseUrl, url);
+        assertEquals(expResult, result);
+    }
+    public void testNormaliseNoBaseUrlLink() throws MalformedURLException {
+        System.out.println("testNormaliseAbsoluteUrlLink");
+        String url = "http://www.google.com/newfile.jsp";
+        URL instance = new URL(url);
+        String expResult = url;
+        String result = instance.normaliseLink(url);
         assertEquals(expResult, result);
     }
     public void testNormaliseAbsoluteUrlLink() throws MalformedURLException {

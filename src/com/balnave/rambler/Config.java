@@ -7,13 +7,22 @@ package com.balnave.rambler;
  */
 public class Config {
 
+    // the starting site url
     private final String siteUrl;
+    // include and exclude RegExp aptterns
     private final String includesRegExp;
     private final String excludesRegExp;
-    private long timeoutMs = 1000 * 60 * 15; // 15 mins before the ramble stops
+    // 15 mins before the ramble stops
+    private long timeoutMs = 1000 * 60 * 15;
+    // thread limit
     private int maxThreadCount = 10;
-    private int maxLinkCount = 100;
-    private boolean strictMemoryManagement = false; // deletes child links and source string to reduce memory
+    // returned link limit
+    private int maxResultCount = 100;
+    // additional data (will affect memory) 
+    private boolean retainChildLinks = false;
+    private boolean retainParentLinks = false;
+    private boolean retainHtmlSource = false;
+    
 
     public Config(String siteUrl) {
         this(siteUrl, null, null);
@@ -50,12 +59,12 @@ public class Config {
         this.maxThreadCount = maxThreadCount;
     }
 
-    public int getMaxLinkCount() {
-        return maxLinkCount;
+    public int getMaxResultCount() {
+        return maxResultCount;
     }
 
-    public void setMaxLinkCount(int maxLinkCount) {
-        this.maxLinkCount = maxLinkCount;
+    public void setMaxResultCount(int maxLinkCount) {
+        this.maxResultCount = maxLinkCount;
     }
 
     public long getTimeoutMs() {
@@ -66,12 +75,29 @@ public class Config {
         this.timeoutMs = timeoutMs;
     }
 
-    public boolean isStrictMemoryManagement() {
-        return strictMemoryManagement;
+    public boolean isRetainChildLinks() {
+        return retainChildLinks;
     }
 
-    public void setStrictMemoryManagement(boolean strictMemoryManagement) {
-        this.strictMemoryManagement = strictMemoryManagement;
+    public void setRetainChildLinks(boolean retainChildLinks) {
+        this.retainChildLinks = retainChildLinks;
     }
 
+    public boolean isRetainParentLinks() {
+        return retainParentLinks;
+    }
+
+    public void setRetainParentLinks(boolean retainParentLinks) {
+        this.retainParentLinks = retainParentLinks;
+    }
+
+    public boolean isRetainHtmlSource() {
+        return retainHtmlSource;
+    }
+
+    public void setRetainHtmlSource(boolean retainHtmlSource) {
+        this.retainHtmlSource = retainHtmlSource;
+    }
+
+    
 }

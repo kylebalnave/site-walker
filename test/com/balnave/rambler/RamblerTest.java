@@ -1,14 +1,9 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.balnave.rambler;
 
-import com.balnave.rambler.reports.AbstractReport;
+import com.balnave.rambler.logging.Logger;
+import com.balnave.rambler.reports.Junit;
 import com.balnave.rambler.reports.Log;
-import java.util.Collection;
+import com.balnave.rambler.reports.Summary;
 import junit.framework.TestCase;
 
 /**
@@ -35,13 +30,15 @@ public class RamblerTest extends TestCase {
      * Test of getResults method, of class Rambler.
      */
     public void testGetResults() throws Exception {
-        Config config = new Config("http://www.google.com/");
-        config.setMaxLinkCount(50);
-        config.setMaxThreadCount(20);
-        config.setStrictMemoryManagement(true);
+        Config config = new Config("http://www.disney.co.uk/disney-channel/", ".*http:\\/\\/www.disney.co.uk\\/disney-channel\\/.*", ".*interstitial.*");
+        config.setMaxResultCount(2000);
+        config.setMaxThreadCount(50);
+        config.setRetainChildLinks(true);
+        config.setRetainHtmlSource(true);
+        config.setRetainParentLinks(true);
+        Logger.setLevel(Logger.WARNING);
         Rambler instance = new Rambler(config);
-        new Log(config, instance.getResults()).out();
-        //assertEquals(100, results.size());
+        new Junit(config, instance.getResults()).out("./test/channel-summary.xml");
     }
     
 }

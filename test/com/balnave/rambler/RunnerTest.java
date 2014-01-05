@@ -5,6 +5,7 @@
  */
 package com.balnave.rambler;
 
+import com.balnave.rambler.queue.QueueItem;
 import junit.framework.TestCase;
 
 /**
@@ -32,7 +33,7 @@ public class RunnerTest extends TestCase {
      */
     public void testCall() throws Exception {
         System.out.println("call");
-        Runner instance = new Runner("http://www.google.com/");
+        Runner instance = new Runner(new QueueItem("http://www.google.com/"));
         int expResult = 200;
         Result result = instance.call();
         assertEquals(expResult, result.getResponseStatus());
@@ -43,7 +44,7 @@ public class RunnerTest extends TestCase {
      */
     public void testGetResult() throws Exception {
         System.out.println("getResult");
-        Runner instance = new Runner("http://www.google.com/");
+        Runner instance = new Runner(new QueueItem("http://www.google.com/"));
         Result result = instance.call();
         Result expResult = instance.getResult();
         assertEquals(expResult, result);
