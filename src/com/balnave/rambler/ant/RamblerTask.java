@@ -27,7 +27,7 @@ public class RamblerTask extends Task {
     private String maxLinks = String.valueOf(500);
     private String reportPath;
     private String summaryPath;
-    private String verbose;
+    private String loggingLevel = "-1";
 
     /**
      * The method executing the task
@@ -35,6 +35,7 @@ public class RamblerTask extends Task {
      */
         @Override
     public void execute() throws BuildException {
+        Logger.setLevel(Integer.valueOf(loggingLevel));
         Config config = new Config(site, includes, excludes);
         config.setMaxResultCount(Integer.valueOf(maxLinks));
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
@@ -61,9 +62,6 @@ public class RamblerTask extends Task {
         if (reportPath == null) {
             AbstractReport report = new Log(config, results);
             if (report.getFailureCount() > 0 || report.getErrorCount() > 0) {
-                if (Boolean.valueOf(verbose)) {
-                    report.out();
-                }
                 Logger.log(String.format("No Report saved... Links: %s Failures: %s Errors: %s",
                         results.size(),
                         report.getFailureCount(),
@@ -105,12 +103,8 @@ public class RamblerTask extends Task {
         this.summaryPath = summaryPath;
     }
 
-    /**
-     * true|false
-     * @param verbose 
-     */
-    public void setVerbose(String verbose) {
-        this.verbose = verbose;
+    public void setLoggingLevel(String level) {
+        this.loggingLevel = level;
     }
 
 }
