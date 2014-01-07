@@ -3,6 +3,8 @@ package com.balnave.rambler;
 import com.balnave.rambler.logging.Logger;
 import com.balnave.rambler.queue.QueueItem;
 import com.balnave.rambler.queue.Queue;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -23,7 +25,17 @@ public class Rambler {
     private final Config config;
     private boolean forceStop = false;
 
-    public Rambler(Config config) throws Exception {
+    public Rambler(final Config config) throws Exception {
+        //
+        // add authentication if required to each runner
+        if(!config.getUsername().isEmpty()) {
+            Authenticator.setDefault (new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication (config.getUsername(), config.getPassword().toCharArray());
+                }
+            });
+        }
         long startTimeMs = System.currentTimeMillis();
         this.config = config;
         //

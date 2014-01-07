@@ -17,13 +17,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Exports a Junit TestSuite to an XML file
+ * Exports a Checkstyle report to an XML file
  *
  * @author balnave
  */
-public class Junit extends AbstractReport {
+public class Checkstyle extends AbstractReport {
 
-    public Junit(Config config, List<Result> results) {
+    public Checkstyle(Config config, List<Result> results) {
         super(config, results);
     }
 
@@ -38,42 +38,23 @@ public class Junit extends AbstractReport {
             // root elements
             Document doc = docBuilder.newDocument();
             // testsuites element
-            Element testsuites = doc.createElement("testsuites");
-            testsuites.setAttribute("name", config.getSiteUrl());
-            testsuites.setAttribute("tests", String.valueOf(results.size()));
-            testsuites.setAttribute("failures", String.valueOf(failureCount));
-            testsuites.setAttribute("errors", String.valueOf(errorCount));
+            Element testsuites = doc.createElement("checkstyle");
             doc.appendChild(testsuites);
-            // testsuite element
-            Element testsuite = doc.createElement("testsuite");
-            testsuite.setAttribute("id", "1");
-            testsuite.setAttribute("name", String.format("Link Check for %s", config.getSiteUrl()));
-            testsuite.setAttribute("tests", String.valueOf(results.size()));
-            testsuite.setAttribute("failures", String.valueOf(failureCount));
-            testsuite.setAttribute("errors", String.valueOf(errorCount));
-            testsuites.appendChild(testsuite);
             // testcase elements
             for (Result singleResult : results) {
-                // staff elements
-                Element testcase = doc.createElement("testcase");
-                testcase.setAttribute("name", singleResult.getRequestUrl());
-                testcase.setAttribute("tests", "1");
-                testcase.setAttribute("assertions", "1");
-                testcase.setAttribute("failures", singleResult.isFailureResult() ? "1" : "0");
-                testcase.setAttribute("errors", singleResult.isErrorResult() ? "1" : "0");
-                String statusStr = String.valueOf(singleResult.getResponseStatus());
-                if (singleResult.isFailureResult()) {
-                    Element failure = doc.createElement("failure");
-                    failure.setAttribute("type", statusStr + " Failure");
-                    failure.setAttribute("message", statusStr + ": " + singleResult.getResponseMessage());
-                    testcase.appendChild(failure);
-                } else if (singleResult.isErrorResult()) {
+                if (singleResult.isFailureResult() || singleResult.isErrorResult()) {
+                    Element testcase = doc.createElement("file");
+                    testcase.setAttribute("name", singleResult.getRequestUrl());
+                    String statusStr = String.valueOf(singleResult.getResponseStatus());
                     Element failure = doc.createElement("error");
-                    failure.setAttribute("type", statusStr + " Error");
+                    failure.setAttribute("line", "0");
+                    failure.setAttribute("column", "0");
                     failure.setAttribute("message", statusStr + ": " + singleResult.getResponseMessage());
+                    failure.setAttribute("source", statusStr + ": " + singleResult.getRequestUrl());
+                    failure.setAttribute("severity", "error");
                     testcase.appendChild(failure);
+                    testsuites.appendChild(testcase);
                 }
-                testsuite.appendChild(testcase);
             }
             //
             // write the content into xml file

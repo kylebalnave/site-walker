@@ -6,6 +6,7 @@ import com.balnave.rambler.Rambler;
 import com.balnave.rambler.Result;
 import com.balnave.rambler.logging.Logger;
 import com.balnave.rambler.reports.AbstractReport;
+import com.balnave.rambler.reports.Checkstyle;
 import com.balnave.rambler.reports.Junit;
 import com.balnave.rambler.reports.Log;
 import com.balnave.rambler.reports.Summary;
@@ -30,12 +31,15 @@ public class RamblerTask extends Task {
     private String summaryPath = "";
     private String gzip = "false";
     private String loggingLevel = "-1";
+    private String username  = "";
+    private String password = "";
 
     /**
      * The method executing the task
+     *
      * @throws BuildException
      */
-        @Override
+    @Override
     public void execute() throws BuildException {
         Logger.setLevel(Integer.valueOf(loggingLevel));
         Config config = new Config(site, includes, excludes);
@@ -43,8 +47,10 @@ public class RamblerTask extends Task {
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
         config.setRetainChildLinks(!summaryPath.isEmpty());
-        config.setRetainHtmlSource(Boolean.valueOf(gzip));
+        config.setRetainHtmlSource(!summaryPath.isEmpty());
         config.setRetainParentLinks(!summaryPath.isEmpty());
+        config.setUsername(username);
+        config.setPassword(password);
         Rambler instance = null;
         boolean gZipReports = Boolean.valueOf(gzip);
         try {
@@ -53,17 +59,19 @@ public class RamblerTask extends Task {
             throw new BuildException(String.format("Error running Rambler on site %s : %s", site, ex.getMessage()));
         }
         List<Result> results = instance.getResults();
-        
+
         if (!summaryPath.isEmpty()) {
             boolean saved = new Summary(config, results).out(summaryPath);
-            Logger.log(String.format("Summary report saved to %s : %s", summaryPath, saved),Logger.DEBUG);
-            if(saved && gZipReports) {
+            Logger.log(String.format("Summary report saved to %s : %s", summaryPath, saved), Logger.DEBUG);
+            if (saved && gZipReports) {
                 GZip.zip(summaryPath, summaryPath + ".gzip", true);
             }
-        } 
+        }
         if (!reportPath.isEmpty()) {
-            boolean saved = new Junit(config, results).out(reportPath);
-            Logger.log(String.format("JUnit report saved to %s : %s", reportPath, saved), Logger.DEBUG);
+            boolean saved = new Junit(config, results).out(reportPath + ".junit.xml");
+            Logger.log(String.format("JUnit report saved to %s : %s", reportPath + ".junit.xml", saved), Logger.DEBUG);
+            saved = new Checkstyle(config, results).out(reportPath + ".checkstyle.xml");
+            Logger.log(String.format("Checkstyle report saved to %s : %s", reportPath + ".checkstyle.xml", saved), Logger.DEBUG);
         }
         if (reportPath.isEmpty() && summaryPath.isEmpty()) {
             AbstractReport report = new Log(config, results);
@@ -113,8 +121,16 @@ public class RamblerTask extends Task {
         this.loggingLevel = level;
     }
 
-    public void setGZip(String gzip) {
+    public void setGzip(String gzip) {
         this.gzip = gzip;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
     
     
