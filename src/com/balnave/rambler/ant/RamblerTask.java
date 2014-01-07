@@ -24,7 +24,7 @@ public class RamblerTask extends Task {
     private String includes;
     private String excludes;
     private String maxThreads = String.valueOf(1);
-    private String maxTimeout = String.valueOf(1000 * 16 * 15);
+    private String maxTimeout = String.valueOf(1000 * 60 * 15);
     private String maxLinks = String.valueOf(500);
     private String reportPath;
     private String summaryPath;

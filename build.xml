@@ -22,7 +22,7 @@
 		<rambler    site="http://www.disney.co.uk/disney-channel/"
 					includes="^http:\/\/www.disney.co.uk\/disney-channel.*$"
 					excludes="^.*interstitial.*$"
-					maxThreads="40"
+					maxThreads="100"
 					maxLinks="2000"
 					reportPath="./channel-junit.xml"
 					summaryPath="./channel-summary.xml" 
