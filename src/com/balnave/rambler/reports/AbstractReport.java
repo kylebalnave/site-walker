@@ -2,9 +2,7 @@ package com.balnave.rambler.reports;
 
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
@@ -59,7 +57,7 @@ public abstract class AbstractReport {
         return getErrorResults().size();
     }
 
-    protected Comparator sortResponseStatus = new Comparator<Result>() {
+    protected Comparator<Result> sortResponseStatus = new Comparator<Result>() {
 
         @Override
         public int compare(Result o1, Result o2) {
