@@ -20,14 +20,14 @@ import org.apache.tools.ant.Task;
  */
 public class RamblerTask extends Task {
 
-    private String site;
-    private String includes;
-    private String excludes;
+    private String site = "";
+    private String includes = "^\\s+$";
+    private String excludes = "^\\s+$";
     private String maxThreads = String.valueOf(1);
     private String maxTimeout = String.valueOf(1000 * 60 * 15);
     private String maxLinks = String.valueOf(500);
-    private String reportPath;
-    private String summaryPath;
+    private String reportPath = "";
+    private String summaryPath = "";
     private String gzip = "false";
     private String loggingLevel = "-1";
 
@@ -42,9 +42,9 @@ public class RamblerTask extends Task {
         config.setMaxResultCount(Integer.valueOf(maxLinks));
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
-        config.setRetainChildLinks(summaryPath != null);
+        config.setRetainChildLinks(!summaryPath.isEmpty());
         config.setRetainHtmlSource(Boolean.valueOf(gzip));
-        config.setRetainParentLinks(summaryPath != null);
+        config.setRetainParentLinks(!summaryPath.isEmpty());
         Rambler instance = null;
         boolean gZipReports = Boolean.valueOf(gzip);
         try {
@@ -54,18 +54,18 @@ public class RamblerTask extends Task {
         }
         List<Result> results = instance.getResults();
         
-        if (summaryPath != null) {
+        if (!summaryPath.isEmpty()) {
             boolean saved = new Summary(config, results).out(summaryPath);
             Logger.log(String.format("Summary report saved to %s : %s", summaryPath, saved),Logger.DEBUG);
             if(saved && gZipReports) {
                 GZip.zip(summaryPath, summaryPath + ".gzip", true);
             }
         } 
-        if (reportPath != null) {
+        if (!reportPath.isEmpty()) {
             boolean saved = new Junit(config, results).out(reportPath);
             Logger.log(String.format("JUnit report saved to %s : %s", reportPath, saved), Logger.DEBUG);
         }
-        if (reportPath == null) {
+        if (reportPath.isEmpty() && summaryPath.isEmpty()) {
             AbstractReport report = new Log(config, results);
             if (report.getFailureCount() > 0 || report.getErrorCount() > 0) {
                 Logger.log(String.format("No Report saved... Links: %s Failures: %s Errors: %s",
