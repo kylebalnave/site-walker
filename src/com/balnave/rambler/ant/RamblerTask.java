@@ -1,5 +1,6 @@
 package com.balnave.rambler.ant;
 
+import com.balnave.io.GZip;
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Rambler;
 import com.balnave.rambler.Result;
@@ -27,6 +28,7 @@ public class RamblerTask extends Task {
     private String maxLinks = String.valueOf(500);
     private String reportPath;
     private String summaryPath;
+    private String gzip = "false";
     private String loggingLevel = "-1";
 
     /**
@@ -41,9 +43,10 @@ public class RamblerTask extends Task {
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
         config.setRetainChildLinks(summaryPath != null);
-        config.setRetainHtmlSource(summaryPath != null);
+        config.setRetainHtmlSource(Boolean.valueOf(gzip));
         config.setRetainParentLinks(summaryPath != null);
         Rambler instance = null;
+        boolean gZipReports = Boolean.valueOf(gzip);
         try {
             instance = new Rambler(config);
         } catch (Exception ex) {
@@ -54,6 +57,9 @@ public class RamblerTask extends Task {
         if (summaryPath != null) {
             boolean saved = new Summary(config, results).out(summaryPath);
             Logger.log(String.format("Summary report saved to %s : %s", summaryPath, saved),Logger.DEBUG);
+            if(saved && gZipReports) {
+                GZip.zip(summaryPath, summaryPath + ".gzip", true);
+            }
         } 
         if (reportPath != null) {
             boolean saved = new Junit(config, results).out(reportPath);
@@ -106,5 +112,11 @@ public class RamblerTask extends Task {
     public void setLoggingLevel(String level) {
         this.loggingLevel = level;
     }
+
+    public void setGZip(String gzip) {
+        this.gzip = gzip;
+    }
+    
+    
 
 }

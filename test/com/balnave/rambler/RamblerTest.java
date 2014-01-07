@@ -1,9 +1,8 @@
 package com.balnave.rambler;
 
+import com.balnave.io.GZip;
 import com.balnave.rambler.logging.Logger;
 import com.balnave.rambler.reports.Junit;
-import com.balnave.rambler.reports.Log;
-import com.balnave.rambler.reports.Summary;
 import junit.framework.TestCase;
 
 /**
@@ -31,7 +30,7 @@ public class RamblerTest extends TestCase {
      */
     public void testGetResults() throws Exception {
         Config config = new Config("http://www.disney.co.uk/disney-channel/", ".*http:\\/\\/www.disney.co.uk\\/disney-channel\\/.*", ".*interstitial.*");
-        config.setMaxResultCount(2000);
+        config.setMaxResultCount(100);
         config.setMaxThreadCount(50);
         config.setRetainChildLinks(false);
         config.setRetainHtmlSource(false);
@@ -39,6 +38,7 @@ public class RamblerTest extends TestCase {
         Logger.setLevel(Logger.WARNING);
         Rambler instance = new Rambler(config);
         new Junit(config, instance.getResults()).out("./test/channel-summary.xml");
+        GZip.zip("./test/channel-summary.xml", "./test/channel-summary.gzip", true);
     }
     
 }

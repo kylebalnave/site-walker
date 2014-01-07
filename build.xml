@@ -17,16 +17,17 @@
 				<include name="Rambler.jar"/>
 			</fileset>
 		</path>
-		<taskdef name="rambler" classname="com.balnave.rambler.RamblerTask" classpathref="rambler-classpath" />
+		<taskdef name="rambler" classname="com.balnave.rambler.ant.RamblerTask" classpathref="rambler-classpath" />
         <echo>Lets Ramble!</echo>
 		<rambler    site="http://www.disney.co.uk/disney-channel/"
 					includes="^http:\/\/www.disney.co.uk\/disney-channel.*$"
-					excludes="^\s*$"
-					verbose="false" 
-					maxThreads="80"
+					excludes="^.*interstitial.*$"
+					maxThreads="40"
 					maxLinks="2000"
 					reportPath="./channel-junit.xml"
-					summaryPath="./channel-summary.xml" /> 
+					summaryPath="./channel-summary.xml" 
+					gzip="true"
+					loggingLevel="3" /> 
 		<!--
         <rambler    site="http://www.google.com/"
                     includes=".*"
