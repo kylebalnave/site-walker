@@ -5,7 +5,6 @@ import com.balnave.rambler.Config;
 import com.balnave.rambler.Rambler;
 import com.balnave.rambler.Result;
 import com.balnave.rambler.logging.Logger;
-import com.balnave.rambler.reports.AbstractReport;
 import com.balnave.rambler.reports.Junit;
 import com.balnave.rambler.reports.SystemLog;
 import com.balnave.rambler.reports.XmlReport;
