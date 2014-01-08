@@ -6,10 +6,10 @@ import com.balnave.rambler.Rambler;
 import com.balnave.rambler.Result;
 import com.balnave.rambler.logging.Logger;
 import com.balnave.rambler.reports.AbstractReport;
-import com.balnave.rambler.reports.Checkstyle;
 import com.balnave.rambler.reports.Junit;
-import com.balnave.rambler.reports.Log;
-import com.balnave.rambler.reports.Summary;
+import com.balnave.rambler.reports.SystemLog;
+import com.balnave.rambler.reports.XmlReport;
+import java.io.File;
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -27,11 +27,11 @@ public class RamblerTask extends Task {
     private String maxThreads = String.valueOf(1);
     private String maxTimeout = String.valueOf(1000 * 60 * 15);
     private String maxLinks = String.valueOf(500);
-    private String reportPath = "";
-    private String summaryPath = "";
+    private String reportsDir = "";
+    private String reportType = "";
     private String gzip = "false";
     private String loggingLevel = "-1";
-    private String username  = "";
+    private String username = "";
     private String password = "";
 
     /**
@@ -41,47 +41,48 @@ public class RamblerTask extends Task {
      */
     @Override
     public void execute() throws BuildException {
+        boolean hasReportsDir = !reportsDir.isEmpty();
+        boolean needsFullReport = hasReportsDir && reportType.contains("full");
+        boolean needsFullOrLinksReport = hasReportsDir && (needsFullReport || reportType.contains("links"));
+        boolean needsJUnitReport = hasReportsDir && reportType.contains("junit");
+        boolean needsLogReport = reportType.contains("log");
+        boolean gZipReports = Boolean.valueOf(gzip);
         Logger.setLevel(Integer.valueOf(loggingLevel));
         Config config = new Config(site, includes, excludes);
         config.setMaxResultCount(Integer.valueOf(maxLinks));
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
-        config.setRetainChildLinks(!summaryPath.isEmpty());
-        config.setRetainHtmlSource(!summaryPath.isEmpty());
-        config.setRetainParentLinks(!summaryPath.isEmpty());
+        config.setRetainChildLinks(needsFullOrLinksReport);
+        config.setRetainHtmlSource(needsFullReport);
+        config.setRetainParentLinks(needsFullOrLinksReport);
         config.setUsername(username);
         config.setPassword(password);
         Rambler instance = null;
-        boolean gZipReports = Boolean.valueOf(gzip);
         try {
             instance = new Rambler(config);
         } catch (Exception ex) {
             throw new BuildException(String.format("Error running Rambler on site %s : %s", site, ex.getMessage()));
         }
         List<Result> results = instance.getResults();
-
-        if (!summaryPath.isEmpty()) {
-            boolean saved = new Summary(config, results).out(summaryPath);
-            Logger.log(String.format("Summary report saved to %s : %s", summaryPath, saved), Logger.DEBUG);
+        String reportOutPath;
+        if (needsFullOrLinksReport) {
+            reportOutPath = reportsDir + "/rambler-report.xml";
+            boolean saved = new XmlReport(config, results).out(reportOutPath);
+            Logger.log(String.format("Summary report saved to %s : %s", reportOutPath, saved), Logger.DEBUG);
             if (saved && gZipReports) {
-                GZip.zip(summaryPath, summaryPath + ".gzip", true);
+                GZip.zip(reportOutPath, reportOutPath + ".gzip", true);
             }
         }
-        if (!reportPath.isEmpty()) {
-            boolean saved = new Junit(config, results).out(reportPath + ".junit.xml");
-            Logger.log(String.format("JUnit report saved to %s : %s", reportPath + ".junit.xml", saved), Logger.DEBUG);
-            saved = new Checkstyle(config, results).out(reportPath + ".checkstyle.xml");
-            Logger.log(String.format("Checkstyle report saved to %s : %s", reportPath + ".checkstyle.xml", saved), Logger.DEBUG);
-        }
-        if (reportPath.isEmpty() && summaryPath.isEmpty()) {
-            AbstractReport report = new Log(config, results);
-            if (report.getFailureCount() > 0 || report.getErrorCount() > 0) {
-                Logger.log(String.format("No Report saved... Links: %s Failures: %s Errors: %s",
-                        results.size(),
-                        report.getFailureCount(),
-                        report.getErrorCount()), Logger.DEBUG);
-                throw new BuildException(String.format("One or more Failures or Errors 'Rambling' %s", site));
+        if (needsJUnitReport) {
+            reportOutPath = reportsDir + "/rambler-junit.xml";
+            boolean saved = new Junit(config, results).out(reportOutPath);
+            Logger.log(String.format("JUnit report saved to %s : %s", reportOutPath, saved), Logger.DEBUG);
+            if (saved && gZipReports) {
+                GZip.zip(reportOutPath, reportOutPath + ".gzip", true);
             }
+        }
+        if (needsLogReport) {
+            new SystemLog(config, results).out();
         }
     }
 
@@ -109,12 +110,19 @@ public class RamblerTask extends Task {
         this.maxLinks = maxLinks;
     }
 
-    public void setReportPath(String reportPath) {
-        this.reportPath = reportPath;
-    }
-
-    public void setSummaryPath(String summaryPath) {
-        this.summaryPath = summaryPath;
+    public void setReportsDir(String reportsDir) {
+        File outDir = new File(reportsDir);
+        if (!outDir.isFile()) {
+            if (!outDir.exists()) {
+                boolean success = outDir.mkdir();
+                if (!success) {
+                    throw new BuildException(String.format("Cannot create reportsDir: %s", outDir.getAbsolutePath()));
+                }
+            }
+        } else {
+            throw new BuildException(String.format("reportsDir must be a directory: %s", outDir.getAbsolutePath()));
+        }
+        this.reportsDir = outDir.getAbsolutePath();
     }
 
     public void setLoggingLevel(String level) {
@@ -132,7 +140,9 @@ public class RamblerTask extends Task {
     public void setPassword(String password) {
         this.password = password;
     }
-    
-    
+
+    public void setReportType(String reportType) {
+        this.reportType = reportType.toLowerCase();
+    }
 
 }

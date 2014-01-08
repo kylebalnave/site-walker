@@ -22,12 +22,14 @@
 		<rambler    site="http://www.disney.co.uk/disney-channel/"
 					includes="^http:\/\/www.disney.co.uk\/disney-channel.*$"
 					excludes="^.*interstitial.*$"
-					maxThreads="100"
-					maxLinks="2000"
-					reportPath="./channel-junit.xml"
-					summaryPath="./channel-summary.xml" 
-					gzip="true"
-					loggingLevel="3" /> 
+					maxThreads="10"
+					maxLinks="10"
+					reportsDir="reports"
+					reportType="links,junit,log" 
+					gzip="false"
+					loggingLevel="3" 
+					username=""
+					password="" /> 
 		<!--
         <rambler    site="http://www.google.com/"
                     includes=".*"

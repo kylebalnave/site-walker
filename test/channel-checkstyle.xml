@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<checkstyle>
-  <file name="http://193.9.1.110/artattack/">
-    <error column="0" line="0" message="404: Server returned HTTP response code: 401 for URL: http://193.9.1.110/artattack/" severity="error" source="404: http://193.9.1.110/artattack/"/>
-  </file>
-</checkstyle>
