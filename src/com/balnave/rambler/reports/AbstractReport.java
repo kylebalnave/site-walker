@@ -2,9 +2,12 @@ package com.balnave.rambler.reports;
 
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
+import java.security.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -83,6 +86,23 @@ public abstract class AbstractReport {
      */
     public int getResultsCount() {
         return results.size();
+    }
+    
+    /**
+     * Gets the total time taken for all tests
+     * @return 
+     */
+    public long getResultsTimeMs() {
+        long timeMs = 0;
+        for(Result result : results) {
+            timeMs += result.getLoadDurationMs();
+        }
+        return timeMs;
+    }
+    
+    public String getTimeStamp() {
+        Date date = new Date();
+        return new SimpleDateFormat("yyyy/MM/dd").format(date) + "T" + new SimpleDateFormat("h:mm:ss").format(date);
     }
 
     /**

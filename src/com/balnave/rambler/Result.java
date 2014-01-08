@@ -25,6 +25,7 @@ public final class Result {
     private String requestUrl = "";
     private String contentType = "";
     private int responseStatus = 0;
+    private long loadDurationMs = 0;
 
     public Result(String requestUrl, int responseStatus, String responseMessage) {
         this(requestUrl, requestUrl, 0, responseMessage);
@@ -59,6 +60,15 @@ public final class Result {
     }
 
     public int getResponseStatus() {
+        if (this.isErrorResult() || this.isFailureResult()) {
+            // try to find status code in message
+            Pattern p = Pattern.compile("\\s+(\\d+)\\s+");
+            Matcher m = p.matcher(this.getResponseMessage());
+            if (m.find()) {
+                // assume the first number is the status
+                return Integer.parseInt(m.group(1), 10);
+            }
+        }
         return responseStatus;
     }
 
@@ -157,6 +167,14 @@ public final class Result {
 
     public String getContentType() {
         return contentType;
+    }
+
+    public long getLoadDurationMs() {
+        return loadDurationMs;
+    }
+
+    public void setLoadDurationMs(long loadDurationMs) {
+        this.loadDurationMs = loadDurationMs;
     }
 
     @Override

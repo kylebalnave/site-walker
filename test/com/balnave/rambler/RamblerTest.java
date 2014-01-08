@@ -30,7 +30,7 @@ public class RamblerTest extends TestCase {
      * Test of getResults method, of class Rambler.
      */
     public void testGetResults() throws Exception {
-        Config config = new Config("http://www.google.co.uk/", ".*", "^\\s+$");
+        Config config = new Config("http://www.disney.co.uk/disney-channel/features/maia-mitchell/", ".*", ".*");
         config.setMaxResultCount(20);
         config.setMaxThreadCount(20);
         config.setRetainChildLinks(true);
@@ -41,11 +41,6 @@ public class RamblerTest extends TestCase {
         new SystemLog(config, instance.getResults()).out();
         new XmlReport(config, instance.getResults()).out("./test/rambler-report.xml");
         new Junit(config, instance.getResults()).out("./test/rambler-junit.xml");
-        /*
-         new Junit(config, instance.getResults()).out("./test/channel-summary.xml");
-         new Checkstyle(config, instance.getResults()).out("./test/channel-checkstyle.xml");
-         GZip.zip("./test/channel-summary.xml", "./test/channel-summary.gzip", true);
-         */
     }
 
 }

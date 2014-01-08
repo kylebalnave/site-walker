@@ -15,7 +15,7 @@ public class Junit extends XmlReport {
     public Junit(Config config, List<Result> results) {
         super(config, results);
     }
-    
+
     @Override
     protected Element doForEachResultList(List<Result> results) {
         // testsuites element
@@ -24,6 +24,8 @@ public class Junit extends XmlReport {
         testsuites.setAttribute("tests", String.valueOf(this.getResultsCount()));
         testsuites.setAttribute("failures", String.valueOf(this.getFailureCount()));
         testsuites.setAttribute("errors", String.valueOf(this.getErrorCount()));
+        testsuites.setAttribute("time", String.valueOf(this.getResultsTimeMs()));
+        testsuites.setAttribute("timestamp", String.valueOf(this.getTimeStamp()));
         doc.appendChild(testsuites);
         // testsuite element
         Element testsuite = doc.createElement("testsuite");
@@ -32,6 +34,7 @@ public class Junit extends XmlReport {
         testsuites.setAttribute("tests", String.valueOf(this.getResultsCount()));
         testsuites.setAttribute("failures", String.valueOf(this.getFailureCount()));
         testsuites.setAttribute("errors", String.valueOf(this.getErrorCount()));
+        testsuites.setAttribute("time", String.valueOf(this.getResultsTimeMs()));
         testsuites.appendChild(testsuite);
         return testsuite;
     }
@@ -45,6 +48,7 @@ public class Junit extends XmlReport {
         element.setAttribute("assertions", "1");
         element.setAttribute("failures", result.isFailureResult() ? "1" : "0");
         element.setAttribute("errors", result.isErrorResult() ? "1" : "0");
+        element.setAttribute("time", String.valueOf(result.getLoadDurationMs()));
         return element;
     }
 

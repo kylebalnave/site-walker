@@ -21,9 +21,9 @@
         <echo>Lets Ramble!</echo>
 		<rambler    site="http://www.disney.co.uk/disney-channel/"
 					includes="^http:\/\/www.disney.co.uk\/disney-channel.*$"
-					excludes="^.*interstitial.*$"
-					maxThreads="10"
-					maxLinks="10"
+					excludes="^.*(interstitial|default\/files).*$"
+					maxThreads="40"
+					maxLinks="20000"
 					reportsDir="reports"
 					reportType="links,junit,log" 
 					gzip="false"

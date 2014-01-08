@@ -10,7 +10,7 @@ public class Logger {
     public static int SEVERE = 4;
     public static int WARNING = 3;
     public static int DEBUG = 2;
-    public static int ALLWAYS = -1;
+    public static int ALLWAYS = 99;
     
     public static void setLevel(int newLevel) {
         level = newLevel;

@@ -16,21 +16,22 @@ public class Runner implements Callable<Result> {
 
     private final QueueItem itemToLoad;
     private Result result;
-    
+
     public Runner(QueueItem itemToLoad) {
         this.itemToLoad = itemToLoad;
     }
 
-    @Override
-    public Result call() {
+    private Result connect(String urlStr) {
         URL urlToLoad;
-        String urlStr = itemToLoad.getItemUrl().toString();
         HttpURLConnection connection = null;
+        Result connectionResult = null;
         try {
             urlToLoad = new URL(urlStr);
             Logger.log(String.format("Runner: loading %s", urlStr), Logger.DEBUG);
+            long startMs = System.currentTimeMillis();
             connection = (HttpURLConnection) urlToLoad.openConnection();
-            result = new Result(itemToLoad.getParentUrl().toString(), connection);
+            connectionResult = new Result(itemToLoad.getParentUrl().toString(), connection);
+            connectionResult.setLoadDurationMs(System.currentTimeMillis() - startMs);
         } catch (Exception ex) {
             // keep a genral exception here to catch all!
             Logger.log(String.format("Runner Exception: %s %s", urlStr, ex.getMessage()), Logger.WARNING);
@@ -39,9 +40,32 @@ public class Runner implements Callable<Result> {
         if (connection != null) {
             connection.disconnect();
         }
-        if (result == null) {
+        if (connectionResult == null) {
             Logger.log(String.format("Runner Exception: %s %s", urlStr, "Result is NULL!"), Logger.WARNING);
             setErrorResult(null, String.format("Unknown error loading url %s", urlStr));
+        }
+        return connectionResult;
+    }
+
+    @Override
+    public Result call() {
+        String urlStr = itemToLoad.getItemUrl().toString();
+        int attempts = 0;
+        int maxAttempts = 3;
+        while (attempts < maxAttempts) {
+            attempts++;
+            result = connect(urlStr);
+            if (result.isErrorResult() || result.isFailureResult()) {
+                try {
+                    // wait 3 secs to try to connect again
+                    Logger.log(String.format("Runner attempt %s of %s, sleep for 3 secs before retrying %s", attempts, maxAttempts, urlStr), Logger.DEBUG);
+                    Thread.sleep(1000 * 3);
+                } catch (InterruptedException ex) {
+                    Logger.log("Error sleeping Runner thread: " + ex.getMessage(), Logger.WARNING);
+                }
+            } else {
+                break;
+            }
         }
         return result;
     }
