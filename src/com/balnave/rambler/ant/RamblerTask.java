@@ -26,6 +26,7 @@ public class RamblerTask extends Task {
     private String maxThreads = String.valueOf(1);
     private String maxTimeout = String.valueOf(1000 * 60 * 15);
     private String maxLinks = String.valueOf(500);
+    private String maxAttempts = String.valueOf(3);
     private String reportsDir = "";
     private String reportType = "";
     private String gzip = "false";
@@ -50,6 +51,7 @@ public class RamblerTask extends Task {
         Config config = new Config(site, includes, excludes);
         config.setMaxResultCount(Integer.valueOf(maxLinks));
         config.setMaxThreadCount(Integer.valueOf(maxThreads));
+        config.setMaxAttempts(Integer.valueOf(maxAttempts));
         config.setTimeoutMs(Integer.valueOf(maxTimeout));
         config.setRetainChildLinks(needsFullOrLinksReport);
         config.setRetainHtmlSource(needsFullReport);
@@ -143,5 +145,11 @@ public class RamblerTask extends Task {
     public void setReportType(String reportType) {
         this.reportType = reportType.toLowerCase();
     }
+
+    public void setMaxAttempts(String maxAttempts) {
+        this.maxAttempts = maxAttempts;
+    }
+    
+    
 
 }

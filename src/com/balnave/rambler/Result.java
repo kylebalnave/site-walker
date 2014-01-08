@@ -155,13 +155,12 @@ public final class Result {
     }
 
     public boolean isErrorResult() {
-        int statusInt = this.getResponseStatus();
-        String statusStr = String.valueOf(getResponseStatus());
-        return statusInt <= 0 || statusStr.matches("50\\d{1}");
+        String statusStr = String.valueOf(responseStatus);
+        return responseStatus <= 0 || statusStr.matches("50\\d{1}");
     }
 
     public boolean isFailureResult() {
-        String statusStr = String.valueOf(getResponseStatus());
+        String statusStr = String.valueOf(responseStatus);
         return statusStr.matches("40\\d{1}");
     }
 

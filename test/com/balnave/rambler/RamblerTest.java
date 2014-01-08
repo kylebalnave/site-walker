@@ -33,8 +33,9 @@ public class RamblerTest extends TestCase {
         Config config = new Config("http://www.disney.co.uk/disney-channel/features/maia-mitchell/", ".*", ".*");
         config.setMaxResultCount(20);
         config.setMaxThreadCount(20);
+        config.setMaxAttempts(3);
         config.setRetainChildLinks(true);
-        config.setRetainHtmlSource(true);
+        config.setRetainHtmlSource(false);
         config.setRetainParentLinks(true);
         Logger.setLevel(Logger.WARNING);
         Rambler instance = new Rambler(config);

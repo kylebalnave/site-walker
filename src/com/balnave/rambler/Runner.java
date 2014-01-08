@@ -16,9 +16,15 @@ public class Runner implements Callable<Result> {
 
     private final QueueItem itemToLoad;
     private Result result;
+    private int maxAttempts = 3;
 
     public Runner(QueueItem itemToLoad) {
         this.itemToLoad = itemToLoad;
+    }
+    
+    public Runner(QueueItem itemToLoad, int maxAttempts) {
+        this.itemToLoad = itemToLoad;
+        this.maxAttempts = maxAttempts;
     }
 
     private Result connect(String urlStr) {
@@ -51,7 +57,6 @@ public class Runner implements Callable<Result> {
     public Result call() {
         String urlStr = itemToLoad.getItemUrl().toString();
         int attempts = 0;
-        int maxAttempts = 3;
         while (attempts < maxAttempts) {
             attempts++;
             result = connect(urlStr);

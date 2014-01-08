@@ -18,6 +18,8 @@ public class Config {
     private int maxThreadCount = 10;
     // returned link limit
     private int maxResultCount = 100;
+    // attempts per link
+    private int maxAttempts = 0;
     // additional data (will affect memory) 
     private boolean retainChildLinks = false;
     private boolean retainParentLinks = false;
@@ -117,6 +119,16 @@ public class Config {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public int getMaxAttempts() {
+        return maxAttempts;
+    }
+
+    public void setMaxAttempts(int maxAttempts) {
+        this.maxAttempts = maxAttempts;
+    }
+    
+    
 
     
 }

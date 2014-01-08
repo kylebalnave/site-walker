@@ -151,7 +151,7 @@ public class Rambler {
         // create multiple threads to load urls
         while (threadIndex < config.getMaxThreadCount() && !queue.isEmpty()) {
             QueueItem queueItem = queue.removeFirst();
-            callables.add(new Runner(queueItem));
+            callables.add(new Runner(queueItem, config.getMaxAttempts()));
             threadIndex++;
         }
         return callables;
