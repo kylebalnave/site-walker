@@ -22,6 +22,9 @@ public final class URL {
     }
 
     public static boolean isValidURL(String url) {
+        if(url.startsWith("#") || url.startsWith("javascript:")) {
+            return false;
+        }
         return createURI(url) != null;
     }
 
@@ -117,7 +120,7 @@ public final class URL {
     }
     protected String normaliseLink(String baseUrl, String url) {
         baseUrl = isValidURL(baseUrl) ? addTrailingSlash(baseUrl) : baseUrl;
-        url = isValidURL(url) ? addTrailingSlash(url) : url;
+        //url = isValidURL(url) ? addTrailingSlash(url) : url;
         URI baseUri = createURI(baseUrl);
         if (baseUri != null && baseUri.getScheme() == null) {
             // add http:// scheme to the base url

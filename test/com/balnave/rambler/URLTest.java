@@ -122,6 +122,24 @@ public class URLTest extends TestCase {
         String result = instance.normaliseLink(baseUrl, url);
         assertEquals(expResult, result);
     }
+    public void testNormaliseAbsoluteUrlLinkLeadingSlash() throws MalformedURLException {
+        System.out.println("testNormaliseAbsoluteUrlLinkLeadingSlash");
+        String baseUrl = "http://www.google.co.uk/";
+        String url = "http://www.google.com/newdir/";
+        URL instance = new URL(baseUrl, url);
+        String expResult = url;
+        String result = instance.normaliseLink(baseUrl, url);
+        assertEquals(expResult, result);
+    }
+    public void testNormaliseAbsoluteUrlLinkNoLeadingSlash() throws MalformedURLException {
+        System.out.println("testNormaliseAbsoluteUrlLinkNoLeadingSlash");
+        String baseUrl = "http://www.google.co.uk/";
+        String url = "http://www.google.com/newdir";
+        URL instance = new URL(baseUrl, url);
+        String expResult = url;
+        String result = instance.normaliseLink(baseUrl, url);
+        assertEquals(expResult, result);
+    }
     public void testNormaliseAbsoluteUrlLink2() throws MalformedURLException {
         System.out.println("testNormaliseAbsoluteUrlLink2");
         String baseUrl = "www.google.co.uk/";
