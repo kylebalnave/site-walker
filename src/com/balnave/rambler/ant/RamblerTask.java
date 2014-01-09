@@ -7,6 +7,7 @@ import com.balnave.rambler.Result;
 import com.balnave.rambler.logging.Logger;
 import com.balnave.rambler.reports.Junit;
 import com.balnave.rambler.reports.SystemLog;
+import com.balnave.rambler.reports.TextReport;
 import com.balnave.rambler.reports.XmlReport;
 import java.io.File;
 import java.util.List;
@@ -67,22 +68,36 @@ public class RamblerTask extends Task {
         List<Result> results = instance.getResults();
         String reportOutPath;
         if (needsFullOrLinksReport) {
+            //
+            // output a xml summary
             reportOutPath = reportsDir + "/rambler-report.xml";
             boolean saved = new XmlReport(config, results).out(reportOutPath);
-            Logger.log(String.format("Summary report saved to %s : %s", reportOutPath, saved), Logger.DEBUG);
+            Logger.log(String.format("Summary report saved to %s : %s", reportOutPath, saved), Logger.ALLWAYS);
+            if (saved && gZipReports) {
+                GZip.zip(reportOutPath, reportOutPath + ".gzip", true);
+            }
+            //
+            // output a simple list
+            reportOutPath = reportsDir + "/rambler-list.txt";
+            saved = new TextReport(config, results).out(reportOutPath);
+            Logger.log(String.format("List report saved to %s : %s", reportOutPath, saved), Logger.ALLWAYS);
             if (saved && gZipReports) {
                 GZip.zip(reportOutPath, reportOutPath + ".gzip", true);
             }
         }
         if (needsJUnitReport) {
+            //
+            // output a junit xml report
             reportOutPath = reportsDir + "/rambler-junit.xml";
             boolean saved = new Junit(config, results).out(reportOutPath);
-            Logger.log(String.format("JUnit report saved to %s : %s", reportOutPath, saved), Logger.DEBUG);
+            Logger.log(String.format("JUnit report saved to %s : %s", reportOutPath, saved), Logger.ALLWAYS);
             if (saved && gZipReports) {
                 GZip.zip(reportOutPath, reportOutPath + ".gzip", true);
             }
         }
         if (needsLogReport) {
+            //
+            // system log the results
             new SystemLog(config, results).out();
         }
     }

@@ -18,7 +18,7 @@ public class SystemLog extends AbstractReport {
 
     @Override
     protected String doForEachResultList(List<Result> results) {
-        return String.format("=============\nRESULTS\n=============\nSite:'%s'\nIncludes Pattern:'%s'\nExcludes Pattern:'%s'\nTests(%s) -- Failures(%s) -- Errors(%s)\n",
+        return String.format("Site:'%s'\nIncludes Pattern:'%s'\nExcludes Pattern:'%s'\nTests(%s) -- Failures(%s) -- Errors(%s)\n",
                 config.getSiteUrl(),
                 config.getIncludesRegExp(),
                 config.getExcludesRegExp(),
@@ -53,6 +53,7 @@ public class SystemLog extends AbstractReport {
     @Override
     public void out() {
         StringBuilder sb = new StringBuilder();
+        sb.append("\n=============\nRESULTS START\n=============\n\n");
         sb.append(this.doForEachResultList(results));
         for(Result result : results) {
             if(result.isErrorResult()) {
@@ -63,7 +64,7 @@ public class SystemLog extends AbstractReport {
                 Logger.log(this.doForEachPassedResult(result), Logger.DEBUG);
             }
         }
-        sb.append("=============\n");
+        sb.append("\n\n=============\nRESULTS END\n=============\n");
         Logger.log(sb.toString(), Logger.ALLWAYS);
     }
 

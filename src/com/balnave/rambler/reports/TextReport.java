@@ -3,74 +3,65 @@ package com.balnave.rambler.reports;
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
 import com.balnave.rambler.logging.Logger;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Outputs the results to the System.out.println
  *
  * @author balnave
  */
-public class SystemLog extends AbstractReport {
+public class TextReport extends SystemLog {
 
-    public SystemLog(Config config, List<Result> results) {
+    public TextReport(Config config, List<Result> results) {
         super(config, results);
     }
-
-    @Override
-    protected String doForEachResultList(List<Result> results) {
-        return String.format("=============\nRESULTS\n=============\nSite:'%s'\nIncludes Pattern:'%s'\nExcludes Pattern:'%s'\nTests(%s) -- Failures(%s) -- Errors(%s)\n",
-                config.getSiteUrl(),
-                config.getIncludesRegExp(),
-                config.getExcludesRegExp(),
-                getResultsCount(),
-                getFailureCount(),
-                getErrorCount());
-    }
-
+    
     @Override
     protected String doForEachPassedResult(Result result) {
-        return String.format("Pass Code:'%s' -- Url:'%s'\n",
-                result.getResponseStatus(),
-                result.getRequestUrl());
+        return String.format("%s\n", result.getRequestUrl());
     }
 
     @Override
     protected String doForEachFailedResult(Result result) {
-        return String.format("Failure Code:'%s' -- Url:'%s'\nMessage:'%s'\n",
-                result.getResponseStatus(),
-                result.getRequestUrl(),
-                result.getResponseMessage());
+        return String.format("xx %s\n",
+                result.getRequestUrl());
     }
 
     @Override
     protected String doForEachErrorResult(Result result) {
-        return String.format("Error Code:'%s' -- Url:'%s'\nMessage:'%s'\n",
-                result.getResponseStatus(),
-                result.getRequestUrl(),
-                result.getResponseMessage());
+        return doForEachFailedResult(result);
     }
 
+
     @Override
-    public void out() {
+    public boolean out(String fileOut) {
         StringBuilder sb = new StringBuilder();
         sb.append(this.doForEachResultList(results));
+        sb.append("\n=============\nRESULTS START\n=============\n\n");
         for(Result result : results) {
             if(result.isErrorResult()) {
                 sb.append(this.doForEachErrorResult(result));
             } else if(result.isFailureResult()) {
                 sb.append(this.doForEachFailedResult(result));
             } else {
-                Logger.log(this.doForEachPassedResult(result), Logger.DEBUG);
+                sb.append(this.doForEachPassedResult(result));
             }
         }
-        sb.append("=============\n");
-        Logger.log(sb.toString(), Logger.ALLWAYS);
-    }
-
-    @Override
-    public boolean out(String fileOut) {
-        out();
-        return false;
+        sb.append("\n\n=============\nRESULTS END\n=============\n");
+        try {
+            PrintWriter out = new PrintWriter(fileOut, "UTF-8");
+            out.print(sb.substring(0));
+            out.close();
+        } catch (FileNotFoundException ex) {
+            return false;
+        } catch (UnsupportedEncodingException ex) {
+            return false;
+        }
+        return true;
     }
 
 }
