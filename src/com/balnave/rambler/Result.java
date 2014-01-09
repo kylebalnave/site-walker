@@ -139,7 +139,6 @@ public final class Result {
         while (m.find()) {
             String href = m.group(1) == null ? m.group(2) : m.group(1);
             boolean isAllowedType = !href.matches(".*\\.(ico|css|js)$");
-            Logger.log(String.format("Result: %s found child href %s", URL.isValidURL(href), href), Logger.DEBUG);
             if (isAllowedType && URL.isValidURL(href)) {
                 URL hrefUrl = new URL(requestUrl, href);
                 String normalisedUrl = hrefUrl.toString();

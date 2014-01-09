@@ -21,7 +21,7 @@ public class Runner implements Callable<Result> {
     public Runner(QueueItem itemToLoad) {
         this.itemToLoad = itemToLoad;
     }
-    
+
     public Runner(QueueItem itemToLoad, int maxAttempts) {
         this.itemToLoad = itemToLoad;
         this.maxAttempts = maxAttempts;
@@ -66,7 +66,7 @@ public class Runner implements Callable<Result> {
                     Logger.log(String.format("Runner attempt %s of %s, sleep for 3 secs before retrying %s", attempts, maxAttempts, urlStr), Logger.DEBUG);
                     Thread.sleep(1000 * 3);
                 } catch (InterruptedException ex) {
-                    Logger.log("Error sleeping Runner thread: " + ex.getMessage(), Logger.WARNING);
+                    Logger.log("Error sleeping Runner thread: " + ex.getMessage(), Logger.DEBUG);
                 }
             } else {
                 break;
