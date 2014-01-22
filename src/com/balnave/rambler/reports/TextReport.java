@@ -2,12 +2,10 @@ package com.balnave.rambler.reports;
 
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
-import com.balnave.rambler.logging.Logger;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * Outputs the results to the System.out.println

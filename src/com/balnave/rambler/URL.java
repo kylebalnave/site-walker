@@ -1,5 +1,6 @@
 package com.balnave.rambler;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -145,6 +146,33 @@ public final class URL {
     @Override
     public String toString() {
         return urlStr;
+    }
+    
+    /**
+     * Converts the url into a format that can be used for filepaths
+     * @return 
+     */
+    public String toSystemFilePath() {
+        String filePath = urlStr;
+        filePath = filePath.replaceAll("(http|https|ftp)://", "");
+        filePath = filePath.replace("/", File.separator);
+        filePath = filePath.replace("\\", "XYZABC");
+        filePath = filePath.replaceAll("\\W", "_");
+        filePath = filePath.replace("XYZABC", "\\");
+        if(!filePath.matches(".+\\.[a-zA-Z0-9]+")) {
+            filePath = filePath + File.separator + "index.html";
+        }
+        return filePath;
+    }
+    
+    /**
+     * Converts the url into a format that can be used for filepaths
+     * @return 
+     */
+    public String toSystemDirPath() {
+        String dirPath = toSystemFilePath();
+        dirPath = dirPath.substring(0, dirPath.lastIndexOf(File.separator));
+        return dirPath;
     }
 
 }

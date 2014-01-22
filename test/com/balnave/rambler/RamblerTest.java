@@ -35,7 +35,7 @@ public class RamblerTest extends TestCase {
         config.setMaxThreadCount(20);
         config.setMaxAttempts(3);
         config.setRetainChildLinks(true);
-        config.setRetainHtmlSource(false);
+        config.setRetainHtmlSource(true);
         config.setRetainParentLinks(true);
         Logger.setLevel(Logger.WARNING);
         Rambler instance = new Rambler(config);

@@ -2,8 +2,13 @@ package com.balnave.rambler.reports;
 
 import com.balnave.rambler.Config;
 import com.balnave.rambler.Result;
+import com.balnave.rambler.URL;
 import com.balnave.rambler.logging.Logger;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.logging.Level;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,6 +30,7 @@ import org.w3c.dom.Element;
 public class XmlReport extends AbstractReport {
 
     protected final Document doc;
+    protected File srcDir;
 
     public XmlReport(Config config, List<Result> results) {
         super(config, results);
@@ -51,6 +57,8 @@ public class XmlReport extends AbstractReport {
 
     @Override
     public boolean out(String fileOut) {
+        srcDir = new File(new File(fileOut).getParent());
+        srcDir.mkdirs();
         buildResultDoc();
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer;
@@ -108,8 +116,19 @@ public class XmlReport extends AbstractReport {
         if (config.isRetainHtmlSource()) {
             Element source = doc.createElement("source");
             source.setAttribute("type", result.getContentType());
-            source.setTextContent(result.getReponseSource());
             element.appendChild(source);
+            try {
+                URL srcUrl = new URL(result.getRequestUrl());
+                File srcOutFile = new File(srcDir.getAbsolutePath() + File.separator + "rambler-src" + File.separator + srcUrl.toSystemFilePath());
+                File srcOutDir = srcOutFile.getParentFile();
+                srcOutDir.mkdirs();
+                PrintWriter out = new PrintWriter(srcOutFile, "UTF-8");
+                out.print(result.getReponseSource());
+                out.close();
+                source.setTextContent(srcOutFile.getAbsolutePath());
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(XmlReport.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         // child links
         if (config.isRetainChildLinks()) {
